@@ -84,3 +84,23 @@
 .crumbs a { color: inherit; }
 @media (max-width: 900px) { .sh-search { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .sh-search { grid-template-columns: 1fr; } .sh-wrap { width: min(100% - 24px, 1180px); } }
+
+/* The room's motif: one stroke draws the shoe, then three stores' tags slide in and the lowest lights up. Motion
+   follows the network's tokens (Calm stills it); reduced motion shows the finished picture. */
+.sh-motif { position: relative; width: min(100%, 400px); aspect-ratio: 16 / 11; margin: 0 auto; color: var(--room-accent); }
+.sh-shoe { position: absolute; inset: 10% 6% auto; width: 84%; }
+.sh-shoe path { fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100;
+  animation: shDraw calc(var(--ov-dur-4, .52s) * 3.5) var(--ov-ease-in-out, ease-in-out) both; }
+@keyframes shDraw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+.sh-mt { position: absolute; display: grid; gap: 1px; padding: 7px 12px; border-radius: 10px; background: var(--ovk-panel, #121826); border: 1px solid var(--ovk-line, rgba(255,255,255,.1));
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, .7); color: var(--ovk-text, #e8ecf3); font-variant-numeric: tabular-nums;
+  animation: shTag var(--ov-dur-4, .52s) var(--ov-ease-spring, cubic-bezier(.34, 1.56, .64, 1)) both; }
+.sh-mt small { font-size: 11px; color: var(--ovk-muted, #93a0b4); }
+.sh-mt b { font-size: 18px; }
+.sh-mt-1 { right: 0; top: 0; animation-delay: calc(var(--ov-dur-4, .52s) * 3); }
+.sh-mt-2 { right: 18%; bottom: 0; animation-delay: calc(var(--ov-dur-4, .52s) * 3.4); }
+.sh-mt-3 { left: 4%; bottom: 0; animation-delay: calc(var(--ov-dur-4, .52s) * 3.8); }
+.sh-mt.is-best { border-color: var(--room-accent); box-shadow: 0 0 0 1px var(--room-accent), 0 14px 30px -18px rgba(0, 0, 0, .7); }
+.sh-mt.is-best b { color: var(--room-strong, var(--room-accent)); }
+@keyframes shTag { from { opacity: 0; transform: translateX(24px); } }
+@media (prefers-reduced-motion: reduce) { .sh-shoe path, .sh-mt { animation: none; } }
