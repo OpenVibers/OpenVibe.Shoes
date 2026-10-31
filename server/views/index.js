@@ -175,6 +175,18 @@ function searchForm({ q = '', facets = {}, action = '/shoes', values = {} }) {
 }
 
 // ── Home ────────────────────────────────────────────────────
+/**
+ * The room's motif (rooms.js: "a shoe drawn as one line, price tags from several stores sliding in"): a sneaker in a
+ * single stroke that draws itself, then three stores' tags arrive and the lowest one lights up. Drawn, not a photo.
+ */
+function shoeMotif() {
+    const tag = (store, price, n, best) => `<span class="sh-mt sh-mt-${n}${best ? ' is-best' : ''}"><small>${store}</small><b>${price}</b></span>`;
+    return `<div class="sh-motif" aria-hidden="true">
+<svg class="sh-shoe" viewBox="0 0 320 170"><path pathLength="100" d="M30 140 C 26 120, 28 100, 36 90 C 46 82, 64 84, 84 92 C 96 96, 104 88, 110 74 C 114 64, 122 58, 132 60 L 140 63 C 162 78, 200 96, 240 104 C 272 110, 298 116, 304 130 C 306 138, 302 142, 294 142 L 36 142 C 32 142, 30 141, 30 140 Z M 26 142 L 26 151 C 26 156, 30 158, 36 158 L 296 158 C 304 158, 310 152, 308 142 M 150 76 L 160 67 M 168 84 L 178 75 M 186 92 L 196 83 M 70 124 C 120 120, 180 113, 244 120 M 36 96 L 28 98"/></svg>
+${tag('Store A', '$129', 1, false)}${tag('Store B', '$112', 2, false)}${tag('Store C', '$98', 3, true)}
+</div>`;
+}
+
 function home({ facets = {}, dropping = [], dropsToday = [], popular = [], curveModel = null, curve = null, sceneDrop = null, jobs = [], now = Date.now() } = {}) {
     const brands = (facets.brands || []).slice(0, 5);
     const priceDrops = dropsToday.filter((m) => m.drop_amount).slice(0, 8);
@@ -217,6 +229,7 @@ function home({ facets = {}, dropping = [], dropsToday = [], popular = [], curve
             lede: 'One page per shoe, every store\'s offer in one all-in price, the price history from Shoes\' own daily snapshots, and a watch that tells you when your size drops below your price.',
             search: { action: '/shoes', name: 'q', placeholder: 'Search a shoe, a brand or a model', label: 'Search shoes', button: 'Search', hints: ['Air Max 90', 'Samba', 'Pegasus', 'New Balance 990'] },
             chips: brands.map((b) => ({ label: b.value, href: `/shoes?brand=${encodeURIComponent(b.value)}` })),
+            motif: shoeMotif(),
         },
         proof: [
             { value: facets.models, label: facets.models === 1 ? 'model tracked' : 'models tracked' },
