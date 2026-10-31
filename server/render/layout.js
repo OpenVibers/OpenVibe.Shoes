@@ -53,6 +53,8 @@ function layout(o) {
     const canonical = o.canonical === undefined ? `${String(config.baseUrl).replace(/\/+$/, '')}${pathNow.split('?')[0]}` : o.canonical;
     const navbar = {
         service: 'shoes',
+        // open.shoes is not an openvibe.<tld> host, so the navbar cannot read the name from it (it said OpenVibe.Network).
+        brand: { tld: 'shoes', tldLabel: 'Shoes' },
         apiBase: NETWORK_URL,
         links: NAV.map((l) => ({ ...l, active: l.href === active || (l.href !== '/' && pathNow.startsWith(`${l.href}/`)) })),
         appBar: [

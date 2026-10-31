@@ -287,7 +287,9 @@ function home({ facets = {}, dropping = [], dropsToday = [], popular = [], curve
     const railAt = body.indexOf('<section class="ovk-rail');
     const sceneAt = body.indexOf('<section class="sc-room-scenes"');
     const at = railAt >= 0 ? railAt : sceneAt;
-    return at < 0 ? `${body}${priceDropSection}` : `${body.slice(0, at)}${priceDropSection}${body.slice(at)}`;
+    // The home sits in the page's width like every other page (it ran edge to edge, 10-31).
+    const page = at < 0 ? `${body}${priceDropSection}` : `${body.slice(0, at)}${priceDropSection}${body.slice(at)}`;
+    return `<div class="sh-wrap sh-home">${page}</div>`;
 }
 
 // ── Search ──────────────────────────────────────────────────
