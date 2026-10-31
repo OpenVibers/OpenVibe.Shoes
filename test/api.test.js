@@ -82,7 +82,8 @@ const { assert, equal } = require('./helpers/check');
         });
 
         await check('POST /api/v1/me/watches: a price watch through OpenVibe.Watch', async () => {
-            const res = await t.get('/api/v1/me/watches', { as: user, json: { slug: 'nike-air-max-90', size: '10.5', condition: 'new', threshold: 90 } });
+            const session = t.signIn(user);
+            const res = await t.get('/api/v1/me/watches', { cookie: session, origin: t.config.baseUrl, json: { slug: 'nike-air-max-90', size: '10.5', condition: 'new', threshold: 90 } });
             equal(res.status, 201);
             const b = res.json();
             equal(b.watch.kind, 'price');
@@ -94,9 +95,19 @@ const { assert, equal } = require('./helpers/check');
             assert(sent.body.source.url.includes('/api/v1/shoes/nike-air-max-90/price'), 'the feed URL');
             equal(sent.body.condition.op, 'lt');
             equal(sent.body.condition.value, 90);
-            equal(sent.headers['x-ov-subject'], user.subject);
-            const list = (await t.get('/api/v1/me/watches', { as: user })).json();
+            equal(sent.headers['x-ov-subject'], undefined, 'no invented subject header');
+            equal(sent.headers.authorization, `Bearer ${session.slice('shoes_at='.length)}`, 'the person\'s own Network token is the Bearer');
+            const list = (await t.get('/api/v1/me/watches', { cookie: session })).json();
             equal(list.watches.length, 1);
+        });
+
+        await check('a session without a Network token is refused before Watch is called', async () => {
+            const before = t.upstreams.state.watchRequests.length;
+            const out = await t.ctx.upstreams.createWatch({ name: 'no token', source: { kind: 'api', url: 'https://open.shoes/x' } });
+            equal(out.ok, false);
+            equal(out.code, 'shoes.watch_no_token');
+            assert(/Network token/.test(out.detail), 'the answer says why');
+            equal(t.upstreams.state.watchRequests.length, before, 'Watch was not called');
         });
 
         await check('POST /shoe/:slug/watch: the page form creates the same price watch', async () => {
@@ -108,6 +119,7 @@ const { assert, equal } = require('./helpers/check');
             const sent = t.upstreams.state.watchRequests[before];
             equal(sent.body.condition.value, 75);
             equal(sent.body.source.kind, 'api');
+            equal(sent.headers['x-ov-subject'], undefined, 'the page form sends no subject header either');
         });
 
         await check('POST /api/v1/me/track: a pasted link becomes a Watch', async () => {
@@ -140,7 +152,7 @@ const { assert, equal } = require('./helpers/check');
         await check('GET /api/v1/status: the jobs, counts and what is configured', async () => {
             const b = (await t.get('/api/v1/status')).json();
             equal(b.counts.models, 4);
-            equal(b.sources.watch, 'configured');
+            equal(b.sources.watch, 'the person\'s own Network token');
             equal(b.sources.ebay, 'configured');
             assert(b.jobs.some((j) => j.job === 'offers'), 'the offers job is listed');
             assert(b.jobs.some((j) => j.job === 'drops'), 'the drops job is listed');

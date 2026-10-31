@@ -20,7 +20,7 @@ raffle or a draw, never scrapes Facebook Marketplace, and carries no affiliate l
 | **OpenVibe.Deals** | the network's own offer aggregator: its public newest-offer pages and each product's public record (brand). No key. | no |
 | **eBay Browse API** | official item summaries, only when a developer key pair is set | `SHOES_EBAY_CLIENT_ID` + `SHOES_EBAY_CLIENT_SECRET` |
 | **A brand's or a store's own release page** | the official release calendar (Nike SNKRS by default), parsed by a pure parser that never invents a date | no |
-| **OpenVibe.Watch** | a watch for a person (service token; the person in `X-OV-Subject`) | `SHOES_WATCH_TOKEN` |
+| **OpenVibe.Watch** | a watch for a person, created with their own Network token | the person's session |
 | **OpenVibe.Today** | a drop reminder on the person's own agenda (their Network token) | the person's session |
 
 Every offer keeps its store, its currency, the price, the shipping the store stated, the condition, the size and
@@ -109,8 +109,7 @@ Only names in code and docs; values live in `/etc/openvibe/shoes.env` (see [.env
   `SHOES_UPSTREAM_TIMEOUT_MS`, `SHOES_REQUEST_GAP_MS`, `SHOES_DROPS_URL`, `SHOES_DROPS_SOURCE_NAME`, `SHOES_DROP_FEEDS`,
   `SHOES_EBAY_CLIENT_ID`, `SHOES_EBAY_CLIENT_SECRET`, `SHOES_EBAY_MARKETPLACE`, `SHOES_EBAY_CATEGORY_ID`,
   `SHOES_EBAY_LIMIT`.
-- **Watch:** `SHOES_WATCH_URL`, `SHOES_WATCH_INTERNAL_URL`, `SHOES_WATCH_TOKEN`, `SHOES_WATCH_AUDIENCE`,
-  `SHOES_WATCH_CAPABILITY`, `SHOES_WATCH_EVERY_SEC`.
+- **Watch:** `SHOES_WATCH_URL`, `SHOES_WATCH_INTERNAL_URL`, `SHOES_WATCH_EVERY_SEC`.
 - **Today:** `SHOES_TODAY_URL`, `SHOES_TODAY_INTERNAL_URL`.
 - **Jobs:** `SHOES_OFFERS_INTERVAL_MS`, `SHOES_DROPS_INTERVAL_MS`, `SHOES_EBAY_INTERVAL_MS`.
 
@@ -155,6 +154,6 @@ section says so plainly when no store has cut a price yet.
 - No raffle, draw, reservation or checkout is automated, ever; the drops calendar links the official page and
   adds a reminder on Today.
 - Specs/fit/release/care are shown only from cited sources; with none, the page says "not known yet".
-- eBay is off until the host sets a developer key pair; Watch is off until the host sets a service token (the
-  watch is still saved on Shoes and marked "not connected").
+- eBay is off until the host sets a developer key pair; Watch is called with the signed-in person's own Network
+  token (a session without one still saves the watch on Shoes, marked "not connected").
 - No affiliate links, no sponsored order, no Marketplace scraping.

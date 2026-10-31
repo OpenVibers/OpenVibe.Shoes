@@ -94,14 +94,12 @@ function load(env = process.env) {
             },
         },
 
-        // OpenVibe.Watch: the watch service that carries the alerts. Without a service token the watch is saved
-        // here and marked "not connected" — a plain note, never an error.
+        // OpenVibe.Watch: the watch service that carries the alerts. The call is made with the signed-in person's
+        // own Network token; without one the watch is saved here and marked "not connected" (a plain note, never
+        // an error).
         watch: {
             url: trim(env.SHOES_WATCH_URL || 'https://openvibe.watch'),
             internalUrl: trim(env.SHOES_WATCH_INTERNAL_URL || 'http://127.0.0.1:4730'),
-            token: env.SHOES_WATCH_TOKEN || '',
-            audience: env.SHOES_WATCH_AUDIENCE || 'openvibe.watch',
-            capability: env.SHOES_WATCH_CAPABILITY || 'watch.watch.manage',
             everySec: Math.max(900, int(env.SHOES_WATCH_EVERY_SEC, 21600)),
         },
 

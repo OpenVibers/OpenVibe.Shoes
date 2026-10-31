@@ -40,7 +40,7 @@ async function boot(opts = {}) {
         SHOES_DROPS_URL: `${upstreams.url}/launch`,
         SHOES_DROPS_SOURCE_NAME: 'Nike SNKRS launch calendar',
         SHOES_DROP_FEEDS: JSON.stringify([{ url: `${upstreams.url}/feed`, name: 'Example releases', type: 'rss' }]),
-        SHOES_WATCH_INTERNAL_URL: upstreams.url, SHOES_WATCH_TOKEN: 'watch-test-token',
+        SHOES_WATCH_INTERNAL_URL: upstreams.url,
         SHOES_TODAY_INTERNAL_URL: upstreams.url,
         SHOES_EBAY_CLIENT_ID: 'ebay-id', SHOES_EBAY_CLIENT_SECRET: 'ebay-secret', SHOES_EBAY_API_URL: upstreams.url,
         SHOES_UPSTREAM_TIMEOUT_MS: '4000',

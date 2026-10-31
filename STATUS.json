@@ -21,7 +21,7 @@
     "One snapshot per offer per day (the first check wins), the price history and the size-price curve from those snapshots",
     "The offers job over OpenVibe.Deals' public API, with the footwear classifier and product brand lookup",
     "The drops job over a brand's or store's own release page, plus optional RSS feeds; every release cited and dated",
-    "A price watch at a size and a pasted listing link through OpenVibe.Watch's API (service token + X-OV-Subject)",
+    "A price watch at a size and a pasted listing link through OpenVibe.Watch's API with the person's own Network token",
     "A drop reminder on OpenVibe.Today with the person's own token; no automated raffle entries",
     "The public API: search with facets, one model with offers/history/curve/facts, the price a Watch polls, drops, the person's watches, source status, OpenAPI 3.1",
     "The home via sc.room: hero, proof, biggest price drops today, dropping this week, popular models, three scenes, explore, developers, FAQ, network",
@@ -30,7 +30,7 @@
   ],
   "notYet": [
     "eBay is off until the host sets SHOES_EBAY_CLIENT_ID and SHOES_EBAY_CLIENT_SECRET",
-    "OpenVibe.Watch is off until the host sets SHOES_WATCH_TOKEN; a watch is then saved on Shoes and marked not_connected",
+    "A watch needs the person's own Network token; a session without one saves it on Shoes and marks it not_connected",
     "Specs, fit notes and care notes are empty until a cited open source is added to the shoe_facts table; the pages say not known yet",
     "The size-price curve is empty until a source states the size; no size is invented",
     "No closet, image search or merchant inventory feed (plan v2/v3)",
