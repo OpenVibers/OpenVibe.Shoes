@@ -1,0 +1,99 @@
+{
+  "repository": "OpenVibers/OpenVibe.Shoes",
+  "version": "0.1.0",
+  "stage": "product",
+  "code": true,
+  "plan": "OpenVibe.Shoes: every shoe, every market, the right price — one page per model with every store's all-in price, Shoes' own daily price snapshots, the size-price curve, cited specs, a price watch at a size and paste-a-link tracking through OpenVibe.Watch, and official drops with a reminder on Today",
+  "runtime": "node 22, express 4, PostgreSQL 18 (openvibe-sdk/db, async) + Valkey 9",
+  "port": "5180",
+  "domain": "open.shoes",
+  "contracts": "openvibe-contracts v0.234.0",
+  "sdk": "openvibe-sdk v0.70.0",
+  "shared": "openvibe-shared v4.31.0",
+  "packages": [
+    "openvibe-contracts v0.234.0",
+    "openvibe-sdk v0.70.0",
+    "openvibe-shared v4.31.0"
+  ],
+  "summary": "OpenVibe.Shoes is the network's shoe resource. It reads OpenVibe.Deals' public offers (and the official eBay Browse API when a key pair is set), keeps the footwear in its own catalogue, and shows one page per model with every store's all-in price, a price history from its own one-snapshot-per-offer-per-day record, the size-price curve where sizes are known, and specs/fit/release/care only from cited open sources. A signed-in person can ask Watch to tell them when the model drops below a price at their size, or paste any listing link and have Watch apply its own fetch rules. Official release dates come from the brands' and stores' own public release pages; a reminder goes on Today. Shoes never enters a raffle, never scrapes Marketplace and carries no affiliate links.",
+  "works": [
+    "Models and offers with a unique slug, all-in price, list price, condition, size, colourway, source check time and stale flag",
+    "One snapshot per offer per day (the first check wins), the price history and the size-price curve from those snapshots",
+    "The offers job over OpenVibe.Deals' public API, with the footwear classifier and product brand lookup",
+    "The drops job over a brand's or store's own release page, plus optional RSS feeds; every release cited and dated",
+    "A price watch at a size and a pasted listing link through OpenVibe.Watch's API (service token + X-OV-Subject)",
+    "A drop reminder on OpenVibe.Today with the person's own token; no automated raffle entries",
+    "The public API: search with facets, one model with offers/history/curve/facts, the price a Watch polls, drops, the person's watches, source status, OpenAPI 3.1",
+    "The home via sc.room: hero, proof, biggest price drops today, dropping this week, popular models, three scenes, explore, developers, FAQ, network",
+    "Server-rendered pages, discovery artifacts, cache headers, account export/deletion and deploy files",
+    "Tests on PGlite and PostgreSQL: pure rules, the catalogue, the job parsers, every HTTP route"
+  ],
+  "notYet": [
+    "eBay is off until the host sets SHOES_EBAY_CLIENT_ID and SHOES_EBAY_CLIENT_SECRET",
+    "OpenVibe.Watch is off until the host sets SHOES_WATCH_TOKEN; a watch is then saved on Shoes and marked not_connected",
+    "Specs, fit notes and care notes are empty until a cited open source is added to the shoe_facts table; the pages say not known yet",
+    "The size-price curve is empty until a source states the size; no size is invented",
+    "No closet, image search or merchant inventory feed (plan v2/v3)",
+    "The drops parser knows the Nike SNKRS launch payload and plain RSS; other calendars need their own parser"
+  ],
+  "capabilitiesRegistered": false,
+  "serviceManifestRegistered": false,
+  "deployed": false,
+  "placeholderInSites": false,
+  "seed": {
+    "run_at": "2026-10-31T22:34:27Z",
+    "sources": {
+      "offers": {
+        "ok": true,
+        "pages": 60,
+        "seen": 1500,
+        "candidates": 182,
+        "product_lookups": 165,
+        "offers": 178,
+        "skipped": 4
+      },
+      "drops": {
+        "ok": true,
+        "sources": 1,
+        "releases": 16,
+        "drops": 16,
+        "skipped": 0
+      },
+      "ebay": {
+        "ok": true,
+        "configured": false,
+        "offers": 0,
+        "note": "off: no developer key pair"
+      }
+    },
+    "counts": {
+      "models": 169,
+      "offers": 178,
+      "snapshots": 178,
+      "drops": 16,
+      "watches": 0,
+      "facts": 0
+    }
+  },
+  "features": [
+    "models and offers",
+    "all-in price with stale flag",
+    "daily price snapshots and history",
+    "size-price curve",
+    "cited facts or not known yet",
+    "offers job",
+    "drops job",
+    "eBay job (off without keys)",
+    "watch at a size",
+    "paste-a-link tracking",
+    "drop reminders on Today",
+    "public API and OpenAPI",
+    "account export and deletion",
+    "Network sign-in",
+    "server-rendered pages",
+    "discovery",
+    "deploy files"
+  ],
+  "deployment": "not deployed: the unit and nginx vhost are deploy/systemd/openvibe-shoes.service and deploy/nginx/open.shoes.conf",
+  "updated": "2026-10-31"
+}
