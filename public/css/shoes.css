@@ -84,6 +84,8 @@
 .crumbs a { color: inherit; }
 @media (max-width: 900px) { .sh-search { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .sh-search { grid-template-columns: 1fr; } .sh-wrap { width: min(100% - 24px, 1180px); } }
+/* Shared's room hero, chips and rails bleed 16 px past a 16 px gutter; this site's phone gutter is 12 px (11-01 phone sweep: +4 px) */
+@media (max-width: 640px) { .sh-wrap .ovk-rail { --ovk-rail-bleed: 12px; } .sh-wrap .sc-room-hero, .sh-wrap .sc-room-chips { margin-inline: -12px; padding-inline: 12px; } }
 
 /* The room's motif: one stroke draws the shoe, then three stores' tags slide in and the lowest lights up. Motion
    follows the network's tokens (Calm stills it); reduced motion shows the finished picture. */
