@@ -9,11 +9,11 @@
   "domain": "open.shoes",
   "contracts": "openvibe-contracts v0.265.0",
   "sdk": "openvibe-sdk v0.70.0",
-  "shared": "openvibe-shared v4.80.0",
+  "shared": "openvibe-shared v4.81.0",
   "packages": [
     "openvibe-contracts v0.265.0",
     "openvibe-sdk v0.70.0",
-    "openvibe-shared v4.80.0"
+    "openvibe-shared v4.81.0"
   ],
   "summary": "OpenVibe.Shoes is the network's shoe resource. It reads OpenVibe.Deals' public offers (and the official eBay Browse API when a key pair is set), keeps the footwear in its own catalogue, and shows one page per model with every store's all-in price, a price history from its own one-snapshot-per-offer-per-day record, the size-price curve where sizes are known, and specs/fit/release/care only from cited open sources. A signed-in person can ask Watch to tell them when the model drops below a price at their size, or paste any listing link and have Watch apply its own fetch rules. Official release dates come from the brands' and stores' own public release pages; a reminder goes on Today. Shoes never enters a raffle, never scrapes Marketplace and carries no affiliate links.",
   "works": [
