@@ -31,6 +31,15 @@
 .sh-empty { padding: 28px; margin: 20px 0; border: 1px dashed var(--border, rgba(255,255,255,.16)); border-radius: 16px; }
 .sh-notice { padding: 12px 14px; margin: 14px 0; border: 1px solid var(--room-accent, var(--accent)); border-radius: 12px; background: color-mix(in srgb, var(--room-accent, var(--accent)) 12%, transparent); }
 .sh-table-wrap { overflow-x: auto; margin: 10px 0; }
+/* The API's routes, one card each: the method and the route on one line that wraps, what it does under it. A table
+   squeezed the routes into a sliver on a phone (phone sweep, 2026-11-01). */
+.sh-eps { display: grid; gap: 10px; margin: 10px 0 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }
+.sh-eps > div { min-width: 0; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border, #1f2d47); background: var(--bg-card, #0f1729); }
+.sh-eps dt code { font-size: 13px; line-height: 1.5; color: var(--text-primary, #e6edf7); overflow-wrap: anywhere; }
+.sh-eps .sh-m { margin-right: 6px; font-weight: 800; color: var(--success-text, #22c55e); }
+.sh-eps .sh-m-post, .sh-eps .sh-m-put, .sh-eps .sh-m-patch { color: var(--warning-text, #f59e0b); }
+.sh-eps .sh-m-delete { color: var(--danger-text, #ef4444); }
+.sh-eps dd { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--text-secondary, #96a7c2); }
 .sh-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .sh-table caption { text-align: left; padding: 0 0 8px; color: var(--text-muted, #7386a3); font-size: 13px; }
 .sh-table th, .sh-table td { padding: 9px 10px; border-bottom: 1px solid var(--border, color-mix(in srgb, var(--text-primary, #fff) 8%, transparent)); text-align: left; vertical-align: top; }
