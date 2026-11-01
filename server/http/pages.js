@@ -133,7 +133,7 @@ function createPageRoutes(ctx) {
             condition: { op: 'lt', value: threshold },
             action: [{ kind: 'notification', category: 'service', priority: 'normal' }],
         };
-        const out = await upstreams.createWatch(body, { subject: req.viewer.subject });
+        const out = await upstreams.createWatch(body, { token: req.viewer.token });
         await catalogue.createWatch({
             subject: req.viewer.subject, kind: 'price', modelId: model.id, slug: model.slug, size, condition,
             threshold, currency: 'USD', remoteId: out.ok && out.watch ? out.watch.id : null,
@@ -164,7 +164,7 @@ function createPageRoutes(ctx) {
             condition: { op: 'changed' },
             action: [{ kind: 'notification', category: 'service', priority: 'normal' }],
         };
-        const out = await upstreams.createWatch(body, { subject: req.viewer.subject });
+        const out = await upstreams.createWatch(body, { token: req.viewer.token });
         await catalogue.createWatch({
             subject: req.viewer.subject, kind: 'link', sourceUrl: checkedUrl.url,
             remoteId: out.ok && out.watch ? out.watch.id : null,

@@ -7,7 +7,7 @@
  *                    products. No key: these are the same reads any person can make.
  *   eBay             the official Browse API (OAuth2 client credentials) when a key pair is set; off otherwise.
  *   a release page   a brand's or a store's own public release calendar (an official page, read as a page).
- *   OpenVibe.Watch   the watch service: a watch for a person (a service token; the person in X-OV-Subject).
+ *   OpenVibe.Watch   the watch service: a watch for a person (the person's own Network token as a Bearer).
  *   OpenVibe.Today   the drops calendar's reminders (the person's own Network token as a Bearer).
  *
  * A missing key is never an error: the part that needs it is off, with a plain note.
@@ -164,20 +164,19 @@ function createUpstreams({ config, fetchImpl = globalThis.fetch, log = console, 
 
     // ── OpenVibe.Watch ──────────────────────────────────────
     /**
-     * Create a watch for a person in OpenVibe.Watch. The service token carries the capability
-     * watch.watch.manage; the person is named in X-OV-Subject. Without a token the watch is not created there
-     * and the caller says so plainly.
+     * Create a watch for a person in OpenVibe.Watch. A person's own Network token is the Bearer: Watch scopes the
+     * watch to that token's subject, exactly as Today does for a reminder. Without a token the watch is not created
+     * there and the caller says so plainly.
      */
-    async function createWatch(body, { subject }) {
-        if (!config.watch.token) return { ok: false, code: 'shoes.watch_not_configured', detail: 'OpenVibe.Watch is not connected yet (no service token).' };
+    async function createWatch(body, { token } = {}) {
+        if (!token) return { ok: false, code: 'shoes.watch_no_token', detail: 'This session has no Network token, so the watch was not created.' };
         const url = `${config.watch.internalUrl.replace(/\/+$/, '')}/api/v1/watches`;
         try {
             const res = await request(url, {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
-                    authorization: `Bearer ${config.watch.token}`,
-                    'x-ov-subject': String(subject || ''),
+                    authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(body),
                 json: true,

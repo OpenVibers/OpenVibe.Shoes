@@ -135,7 +135,7 @@ function createApi(ctx) {
             condition: { op: 'lt', value: threshold },
             action: [{ kind: 'notification', category: 'service', priority: 'normal' }],
         };
-        const out = await upstreams.createWatch(body, { subject: req.principal.subject });
+        const out = await upstreams.createWatch(body, { token: req.principal.token });
         const watch = await catalogue.createWatch({
             subject: req.principal.subject, kind: 'price', modelId: model.id, slug, size, condition, threshold,
             currency: 'USD', remoteId: out.ok && out.watch ? out.watch.id : null,
@@ -156,7 +156,7 @@ function createApi(ctx) {
             condition: { op: 'changed' },
             action: [{ kind: 'notification', category: 'service', priority: 'normal' }],
         };
-        const out = await upstreams.createWatch(body, { subject: req.principal.subject });
+        const out = await upstreams.createWatch(body, { token: req.principal.token });
         const watch = await catalogue.createWatch({
             subject: req.principal.subject, kind: 'link', sourceUrl: checkedUrl.url,
             remoteId: out.ok && out.watch ? out.watch.id : null,
@@ -176,7 +176,7 @@ function createApi(ctx) {
                 deals: config.sources.dealsUrl,
                 drops: config.sources.dropsUrl,
                 ebay: upstreams.ebayConfigured() ? 'configured' : 'off (no key pair)',
-                watch: config.watch.token ? 'configured' : 'off (no service token)',
+                watch: 'the person\'s own Network token',
             },
         });
     });
