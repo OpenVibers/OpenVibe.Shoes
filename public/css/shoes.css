@@ -15,7 +15,7 @@
 .sh-fine { margin: 10px 0 0; color: var(--text-muted, #7386a3); font-size: 13px; line-height: 1.55; }
 .sh-good { color: var(--ok, #34d399); font-weight: 700; }
 .sh-stale { color: var(--warn, #fbbf24); font-weight: 700; }
-.sh-fresh { color: var(--ok, #34d399); font-weight: 700; }
+.sh-fresh { color: var(--success-text, var(--ok, #34d399)); font-weight: 700; }
 .sh-sec { margin: 34px 0 0; }
 .sh-sec h2 { margin: 0 0 8px; font-size: clamp(20px, 2.4vw, 26px); }
 .sh-sec h3 { margin: 0 0 4px; font-size: 15px; }
