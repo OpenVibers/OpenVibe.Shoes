@@ -21,7 +21,7 @@
 .sh-sec { margin: 34px 0 0; }
 .sh-sec h2 { margin: 0 0 8px; font-size: clamp(20px, 2.4vw, 26px); }
 .sh-sec h3 { margin: 0 0 4px; font-size: 15px; }
-.sh-btn { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 8px 14px; border: 1px solid var(--room-accent, var(--accent)); border-radius: 10px; background: var(--room-accent, var(--accent)); color: #fff; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.sh-btn { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 8px 14px; border: 1px solid var(--room-fill, var(--accent)); border-radius: 10px; background: var(--room-fill, var(--accent)); color: var(--room-on, #fff); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
 .sh-btn svg { width: 18px; height: 18px; }
 .sh-btn-quiet { background: transparent; color: var(--room-strong, var(--text-primary)); }
 .sh-btn:hover { filter: brightness(1.06); }
