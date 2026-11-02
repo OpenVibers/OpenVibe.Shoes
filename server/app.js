@@ -35,6 +35,7 @@ const { assetVersion, setRelease } = require('./render/layout');
 const { createCatalogue } = require('./catalogue');
 const { createUpstreams } = require('./upstreams');
 const { createJobs } = require('./jobs');
+const { createSearchIndex } = require('./search-index');
 
 const accountDataLib = require('./identity/account-data');
 const { createNetworkSender } = require('openvibe-sdk/account-data');
@@ -60,6 +61,8 @@ async function createApp(opts = {}) {
     const catalogue = createCatalogue(s, { staleHours: config.sources.staleHours });
     const upstreams = createUpstreams({ config, fetchImpl, log, urlCheck: opts.urlCheck });
     const jobs = createJobs({ config, catalogue, upstreams, log });
+    // The model pages in OpenVibe.Search (started by server/index.js, never under SHOES_DRILL).
+    const searchIndex = createSearchIndex({ config, s, log });
 
     // Account export and deletion (ADR-033). The sender posts to Network's internal routes with this service's own
     // client-credentials token; a test injects a stand-in through opts.accountSend.
@@ -68,7 +71,7 @@ async function createApp(opts = {}) {
         ? createNetworkSender({ networkInternalUrl: config.networkInternalUrl, clientId: config.oauth.clientId, clientSecret: config.oauth.clientSecret, fetch: fetchImpl })
         : async () => { throw new Error('OV_OAUTH_CLIENT_SECRET is not set: Shoes cannot answer account events'); });
 
-    const ctx = { config, s, keys, sso, principal, catalogue, upstreams, jobs, accountData, accountSend, log };
+    const ctx = { config, s, keys, sso, principal, catalogue, upstreams, jobs, searchIndex, accountData, accountSend, log };
 
     const app = express();
     app.disable('x-powered-by');
