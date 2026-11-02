@@ -90,7 +90,8 @@
 .sh-list { padding-left: 20px; line-height: 1.65; color: var(--text-secondary, #96a7c2); }
 .sh-code { overflow-x: auto; padding: 12px 14px; border-radius: 12px; background: var(--bg-secondary, #101828); border: 1px solid var(--border, rgba(255,255,255,.1)); }
 .sh-page-nav { display: flex; gap: 14px; align-items: center; justify-content: center; margin: 24px 0; }
-.sh-page-nav .is-off { opacity: .4; pointer-events: none; }
+/* The end of the list is plain text in the muted colour (AA on every theme), not a faded link to no page. */
+.sh-page-nav .is-off { color: var(--text-muted, #7386a3); }
 .crumbs { font-size: 13px; color: var(--text-muted, #7386a3); margin: 10px 0 0; }
 .crumbs a { color: inherit; }
 @media (max-width: 900px) { .sh-search { grid-template-columns: 1fr 1fr; } }

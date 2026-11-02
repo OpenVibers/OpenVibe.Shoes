@@ -307,7 +307,7 @@ function shoesIndex({ models = [], facets = {}, query = {}, page = 1, total = 0,
 <header class="sh-page-h"><p class="sh-kicker">Every shoe</p><h1>Search the catalogue</h1><p class="sh-lede">${total} model${total === 1 ? '' : 's'}${query.q ? ` for “${esc(query.q)}”` : ''}, each with every store's all-in price, the time it was checked and a stale flag.${facets.checked_at ? ` The catalogue was last read ${esc(checked(facets.checked_at, now))}.` : ''}</p></header>
 ${searchForm({ q: query.q || '', facets, values: query })}
 ${models.length ? `<ul class="sh-grid">${models.map((m) => `<li>${modelCard(m)}</li>`).join('')}</ul>` : `<div class="sh-empty"><h2>No shoe matches yet</h2><p>Try a brand, a model or a shorter word. The catalogue is filled by the Deals job; a model appears the first time a source names it.</p><p><a class="sh-btn" href="/shoes">Clear the filters</a></p></div>`}
-${pages > 1 ? `<nav class="sh-page-nav" aria-label="Pages"><a${page <= 1 ? ' class="is-off"' : ''} href="/shoes?${esc(qs(page - 1))}">← Previous</a><span>Page ${page} of ${pages}</span><a${page >= pages ? ' class="is-off"' : ''} href="/shoes?${esc(qs(page + 1))}">Next →</a></nav>` : ''}
+${pages > 1 ? `<nav class="sh-page-nav" aria-label="Pages">${page <= 1 ? '<span class="is-off" aria-disabled="true">← Previous</span>' : `<a href="/shoes?${esc(qs(page - 1))}" rel="prev">← Previous</a>`}<span>Page ${page} of ${pages}</span>${page >= pages ? '<span class="is-off" aria-disabled="true">Next →</span>' : `<a href="/shoes?${esc(qs(page + 1))}" rel="next">Next →</a>`}</nav>` : ''}
 <p class="sh-fine">A model with no price says so; a price that has not been checked in ${esc(facets.stale_hours || 48)} hours is marked stale. No affiliate links, ever.</p></div>`;
     return body;
 }
