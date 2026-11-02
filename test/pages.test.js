@@ -25,6 +25,7 @@ const { assert, equal } = require('./helpers/check');
             assert(h.includes('Every shoe, every market, the right price'), 'the room line');
             assert(h.includes('The biggest price drops today'), 'the drops rail');
             assert(h.includes('Dropping this week'), 'the release rail');
+            assert(h.includes('ovk-card-noimg--date'), 'each release shows its day as the cover, not a calendar icon');
             assert(h.includes('Popular models'), 'the popular rail');
             assert(h.includes('The biggest price drops today') && h.includes('ovk-card'), 'kit cards');
             assert(h.includes('A size-price curve') || h.includes('What a size costs'), 'the size scene');
