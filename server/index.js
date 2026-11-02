@@ -20,6 +20,7 @@ function createLifecycle({ server, ctx, exit, signals, timers = [], extra = [] }
             () => { for (const t of timers) clearInterval(t); },
             () => ctx.keys.client.stop(),
             () => ctx.jobs.stop(),
+            () => { if (ctx.searchIndex) ctx.searchIndex.stop(); },
             async () => { clearInterval(ctx.telemetryTick); if (ctx.retention) await ctx.retention.stop(); if (ctx.telemetry) await ctx.telemetry.stop(); },
             () => ctx.s.close(),
             ...extra,
@@ -45,6 +46,8 @@ async function start() {
 
     // Jobs. Each refuses to start under SHOES_DRILL; tests call their runOnce().
     ctx.jobs.start();
+    // The model pages in OpenVibe.Search: a sweep a minute after boot and every six hours (off under SHOES_DRILL).
+    ctx.searchIndex.start();
 
     // The two account topics (export_requested, deleted) at OpenVibe.Events: idempotent; off without the URL, the
     // delivery secret and the client secret. The consumer itself is mounted in server/app.js.
