@@ -33,7 +33,8 @@ function describe(row) {
         noindex: !stores,
         title: row.name,
         summary: `${row.name} by ${row.brand}. ${price} Every store's price, the price history and the size curve on open.shoes.`,
-        body: [row.name, row.brand, row.model, price].filter(Boolean).join('\n'),
+        // The snippet reads the summary and body together: the body is the model name only when it differs from the title.
+        body: row.model && row.model !== row.name ? row.model : '',
         facets: { brand: row.brand, stores, ...(row.price_min != null ? { lowest_price: Math.round(Number(row.price_min)) } : {}) },
         authorship: { mode: 'imported' },
         publishedAt: iso(row.first_seen_at),
