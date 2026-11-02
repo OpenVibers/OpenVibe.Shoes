@@ -90,7 +90,8 @@ function dropCard(d) {
         title: `${d.brand} ${d.model}${d.colourway ? ` · ${d.colourway}` : ''}`,
         type: 'event',
         corner: d.price != null ? money(d.price, d.currency) : '',
-        badge: dayShort(d.release_at),
+        // The release day is the cover (openvibe-shared 4.100.0): no row of identical calendar icons, no badge repeating it.
+        date: d.release_at,
         who: d.source_name,
         peek: `${dayLong(d.release_at)}${d.sizes.length ? ` · ${d.sizes.length} sizes` : ''}`,
     });
