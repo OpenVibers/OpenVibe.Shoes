@@ -44,5 +44,14 @@ const views = require('../server/views');
         assert(bars.includes('−5.0%'), 'the comparison');
     });
 
+    await check('the list\'s page links: the ends are plain text, not links to no page', () => {
+        const first = views.shoesIndex({ page: 1, total: 60 });
+        assert(first.includes('<span class="is-off" aria-disabled="true">← Previous</span>'), 'page 1 has no previous link');
+        assert(/<a href="\/shoes\?[^"]*page=2[^"]*" rel="next">Next →<\/a>/.test(first), 'page 1 links to page 2');
+        const last = views.shoesIndex({ page: 3, total: 60 });
+        assert(last.includes('<span class="is-off" aria-disabled="true">Next →</span>'), 'the last page has no next link');
+        assert(last.includes('rel="prev">← Previous</a>'), 'the last page links back');
+    });
+
     done();
 })();
