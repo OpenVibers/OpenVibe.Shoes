@@ -25,7 +25,7 @@ function openapi(config = {}) {
     return {
         openapi: '3.1.0',
         info: {
-            title: 'OpenVibe.Shoes API',
+            title: 'Open.Shoes API',
             version: '0.1.0',
             summary: 'Every shoe, every market, the right price.',
             description: 'Shoes aggregates official store offers into one all-in price per variant, keeps its own daily price snapshots, and exposes the drops calendar and a person\'s watches. Public reads take no key. There are no affiliate links and no Marketplace scraping.',

@@ -21,7 +21,7 @@ const rooms = require('openvibe-shared/rooms');
 
 const { esc, icon, card, rail } = kit;
 const ROOM = rooms.get('shoes');
-const SITE = 'OpenVibe.Shoes';
+const SITE = 'Open.Shoes';
 const money = (n, cur = 'USD') => {
     if (n == null || n === '') return '—';
     const v = Number(n);

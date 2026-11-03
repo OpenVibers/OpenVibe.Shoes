@@ -59,7 +59,7 @@ function createPageRoutes(ctx) {
         const body = views.home({ facets, dropping, dropsToday, popular, curveModel, curve, sceneDrop, jobs, now });
         return page(req, res, {
             title: null,
-            description: 'OpenVibe.Shoes: every shoe, every market, the right price. A page per model with every store\'s all-in price, Shoes\' own price history, the size-price curve and a watch for your size.',
+            description: 'Open.Shoes: every shoe, every market, the right price. A page per model with every store\'s all-in price, Shoes\' own price history, the size-price curve and a watch for your size.',
             body,
             active: '/',
             index: true,
@@ -83,7 +83,7 @@ function createPageRoutes(ctx) {
         ]);
         return page(req, res, {
             title: q ? `Shoes matching “${q}”` : 'Every shoe',
-            description: 'Search every shoe in OpenVibe.Shoes by brand, model, size and condition; every price is all-in with its store and the time it was checked.',
+            description: 'Search every shoe in Open.Shoes by brand, model, size and condition; every price is all-in with its store and the time it was checked.',
             body: views.shoesIndex({ models, facets, query: { ...filters, sort }, page: pageNo, total }),
             active: '/shoes',
             robots: q || brand || size || condition || store ? 'noindex, follow' : 'index, follow',

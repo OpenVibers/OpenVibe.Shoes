@@ -11,9 +11,9 @@ const seo = require('openvibe-shared/seo');
 const cache = require('openvibe-shared/cache-policy');
 const { asyncRouter } = require('./router');
 
-const SITE_NAME = 'OpenVibe.Shoes';
+const SITE_NAME = 'Open.Shoes';
 const HOST = 'open.shoes';
-const DESCRIPTION = 'OpenVibe.Shoes is every shoe, every market, the right price: one page per model with every store\'s all-in price, a price history from Shoes\' own daily snapshots, the size-price curve and a watch for your size.';
+const DESCRIPTION = 'Open.Shoes is every shoe, every market, the right price: one page per model with every store\'s all-in price, a price history from Shoes\' own daily snapshots, the size-price curve and a watch for your size.';
 const DISALLOW = ['/auth/', '/api/', '/internal', '/metrics', '/watches', '/track'];
 
 function siteUpdated() {
@@ -54,7 +54,7 @@ function productJsonLd(config, model, offers, low) {
 
 function publicPages(models = []) {
     const pages = [
-        { path: '/', changefreq: 'hourly', priority: 1.0, title: 'OpenVibe.Shoes home', text: 'Every shoe, every market, the right price: all-in prices, the price history and the size-price curve.' },
+        { path: '/', changefreq: 'hourly', priority: 1.0, title: 'Open.Shoes home', text: 'Every shoe, every market, the right price: all-in prices, the price history and the size-price curve.' },
         { path: '/shoes', changefreq: 'hourly', priority: 0.9, title: 'Every shoe', text: 'Search every model by brand, size and condition; every offer is all-in with its store and the time it was checked.' },
         { path: '/drops', changefreq: 'daily', priority: 0.8, title: 'The drops calendar', text: 'Official shoe release dates, each cited to the brand\'s or store\'s own release page, with a reminder on OpenVibe.Today.' },
         { path: '/developers', changefreq: 'weekly', priority: 0.6, title: 'The Shoes API', text: 'The open JSON API for shoes, offers, history, curves, drops and watches, and the OpenAPI document.' },

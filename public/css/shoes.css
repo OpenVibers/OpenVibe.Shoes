@@ -3,7 +3,7 @@
 .skip { position: absolute; left: -9999px; }
 .skip:focus { left: 12px; top: 12px; z-index: 99; padding: 8px 12px; border-radius: 10px; background: var(--bg-card, #0f1729); color: inherit; }
 
-/* OpenVibe.Shoes — the small set of page pieces the kit does not draw (tables, forms, the price chart).
+/* Open.Shoes — the small set of page pieces the kit does not draw (tables, forms, the price chart).
    The room's look and every card, rail and scene come from kit.css, room.css and showcase.css. */
 .sh-wrap { width: min(1180px, 100% - 32px); margin: 0 auto; }
 .sh-page { padding: 28px 0 64px; }

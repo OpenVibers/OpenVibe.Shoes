@@ -38,7 +38,7 @@ function createEbayJob({ config, catalogue, upstreams, log = console }) {
                 else counts.skipped++;
             }
             await catalogue.finishJobRun(runId, { ok: true, counts });
-            log.log(`[OpenVibe.Shoes] ebay: ${counts.offers} offers from ${counts.items} items`);
+            log.log(`[Open.Shoes] ebay: ${counts.offers} offers from ${counts.items} items`);
             return { configured: true, ...counts };
         } catch (err) {
             await catalogue.finishJobRun(runId, { ok: false, counts, error: err.message });
@@ -51,7 +51,7 @@ function createEbayJob({ config, catalogue, upstreams, log = console }) {
         const tick = () => {
             if (running) return;
             running = true;
-            runOnce().catch((err) => log.warn('[OpenVibe.Shoes] ebay job failed:', err.message)).finally(() => { running = false; });
+            runOnce().catch((err) => log.warn('[Open.Shoes] ebay job failed:', err.message)).finally(() => { running = false; });
         };
         timer = setInterval(tick, config.jobs.ebayIntervalMs);
         timer.unref();

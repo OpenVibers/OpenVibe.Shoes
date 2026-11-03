@@ -5,7 +5,7 @@ process.env.SHOES_API_RATE_LIMIT_PER_MIN = process.env.SHOES_API_RATE_LIMIT_PER_
 process.env.SHOES_LIMITS_MINUTE = process.env.SHOES_LIMITS_MINUTE || '100000';
 process.env.SHOES_LIMITS_HOUR = process.env.SHOES_LIMITS_HOUR || '100000';
 /**
- * Boots OpenVibe.Shoes on a temp database with a mock Network (test/helpers/mocks.js) and in-process public
+ * Boots Open.Shoes on a temp database with a mock Network (test/helpers/mocks.js) and in-process public
  * sources and sibling services (test/helpers/upstreams.js), captures log lines, and returns a small HTTP client.
  * Every test file gets its own.
  *

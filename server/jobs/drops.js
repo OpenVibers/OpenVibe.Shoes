@@ -26,7 +26,7 @@ function createDropsJob({ config, catalogue, upstreams, log = console }) {
                 try {
                     releases = await upstreams.releaseCalendar(source);
                 } catch (err) {
-                    log.warn(`[OpenVibe.Shoes] drops source ${source.url} failed: ${err.message}`);
+                    log.warn(`[Open.Shoes] drops source ${source.url} failed: ${err.message}`);
                     continue;
                 }
                 counts.sources++;
@@ -38,7 +38,7 @@ function createDropsJob({ config, catalogue, upstreams, log = console }) {
                 }
             }
             await catalogue.finishJobRun(runId, { ok: true, counts });
-            log.log(`[OpenVibe.Shoes] drops: ${counts.drops} releases from ${counts.sources} source(s)`);
+            log.log(`[Open.Shoes] drops: ${counts.drops} releases from ${counts.sources} source(s)`);
             return counts;
         } catch (err) {
             await catalogue.finishJobRun(runId, { ok: false, counts, error: err.message });
@@ -51,7 +51,7 @@ function createDropsJob({ config, catalogue, upstreams, log = console }) {
         const tick = () => {
             if (running) return;
             running = true;
-            runOnce().catch((err) => log.warn('[OpenVibe.Shoes] drops job failed:', err.message)).finally(() => { running = false; });
+            runOnce().catch((err) => log.warn('[Open.Shoes] drops job failed:', err.message)).finally(() => { running = false; });
         };
         timer = setInterval(tick, config.jobs.dropsIntervalMs);
         timer.unref();

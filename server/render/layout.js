@@ -16,14 +16,14 @@ const cache = require('openvibe-shared/cache-policy');
 const { esc } = require('./html');
 
 const NETWORK_URL = 'https://openvibe.network';
-const SITE_NAME = 'OpenVibe.Shoes';
+const SITE_NAME = 'Open.Shoes';
 const MENU_NAME = 'Shoes';
 const TAGLINE = 'Every shoe, every market, the right price.';
 const PUBLIC_DIR = path.join(__dirname, '..', '..', 'public');
 const NAV = [
-    { label: 'Home', href: '/', icon: 'fa-shoe-prints' },
+    { label: 'Home', href: '/', icon: 'fa-house' },
     { label: 'Shoes', href: '/shoes', icon: 'fa-magnifying-glass' },
-    { label: 'Drops', href: '/drops', icon: 'fa-calendar-days' },
+    { label: 'Drops', href: '/drops', icon: 'fa-clock' },
     { label: 'Watches', href: '/watches', icon: 'fa-bell' },
     { label: 'Developers', href: '/developers', icon: 'fa-code', more: true },
 ];
@@ -59,7 +59,7 @@ function layout(o) {
         links: NAV.map((l) => ({ ...l, active: l.href === active || (l.href !== '/' && pathNow.startsWith(`${l.href}/`)) })),
         appBar: [
             { label: 'Shoes', href: '/shoes', icon: 'fa-magnifying-glass' },
-            { label: 'Drops', href: '/drops', icon: 'fa-calendar-days' },
+            { label: 'Drops', href: '/drops', icon: 'fa-clock' },
             { label: 'Watches', href: '/watches', icon: 'fa-bell' },
         ],
         silentLogin: `${String(config.baseUrl).replace(/\/+$/, '')}/auth/login?silent=1&next={url}`,

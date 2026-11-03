@@ -84,7 +84,7 @@ function createPrincipal({ config, keys }) {
     }
 
     function require_(cap) {
-        if (!CAPABILITIES.includes(cap)) throw new Error(`requireCapability(${cap}): not one of OpenVibe.Shoes's capabilities`);
+        if (!CAPABILITIES.includes(cap)) throw new Error(`requireCapability(${cap}): not one of Open.Shoes's capabilities`);
         return function guard(req, res, next) {
             if (req.principal.kind === 'anonymous') return http.sendProblem(res, 401, 'token.required', { detail: 'Sign in at open.shoes, or send a person\'s Network token as a Bearer.', ctx: req.ov });
             if (req.principal.kind === 'user') {

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * OpenVibe.Shoes's own PostgreSQL database (ADR-035): the schema is migrations/NNNN_*.sql, applied at boot.
+ * Open.Shoes's own PostgreSQL database (ADR-035): the schema is migrations/NNNN_*.sql, applied at boot.
  * Nothing written here is ever a secret. An offer stores the store's own URL, the price and the time it was
  * checked; a watch stores a person's subject id, a threshold and the public URL they pasted.
  */
@@ -17,7 +17,7 @@ async function openDb(config, { log = console, registry } = {}) {
     if (!config.db.url) {
         if (config.isProduction) throw new Error('DATABASE_URL is not set: production serves from PostgreSQL (OpenVibe.Host roles/data add-service.sh today)');
         const dir = config.db.pgliteDir || DEV_PGLITE;
-        log.warn(`[OpenVibe.Shoes] DATABASE_URL unset: embedded PGlite database in ${dir} (development only, one process)`);
+        log.warn(`[Open.Shoes] DATABASE_URL unset: embedded PGlite database in ${dir} (development only, one process)`);
         fs.mkdirSync(dir, { recursive: true });
         const db = createDb({ pglite: dir, service: 'shoes', registry, log });
         await db.migrate({ dir: MIGRATIONS, log });

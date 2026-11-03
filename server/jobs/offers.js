@@ -82,7 +82,7 @@ function createOffersJob({ config, catalogue, upstreams, log = console }) {
                 if (page < total && config.sources.requestGapMs) await upstreams.sleep(config.sources.requestGapMs);
             }
             await catalogue.finishJobRun(runId, { ok: true, counts });
-            log.log(`[OpenVibe.Shoes] offers: ${counts.offers} offers from ${counts.candidates} shoe candidates over ${counts.pages} pages`);
+            log.log(`[Open.Shoes] offers: ${counts.offers} offers from ${counts.candidates} shoe candidates over ${counts.pages} pages`);
             return counts;
         } catch (err) {
             await catalogue.finishJobRun(runId, { ok: false, counts, error: err.message });
@@ -95,7 +95,7 @@ function createOffersJob({ config, catalogue, upstreams, log = console }) {
         const tick = () => {
             if (running) return;
             running = true;
-            runOnce().catch((err) => log.warn('[OpenVibe.Shoes] offers job failed:', err.message)).finally(() => { running = false; });
+            runOnce().catch((err) => log.warn('[Open.Shoes] offers job failed:', err.message)).finally(() => { running = false; });
         };
         timer = setInterval(tick, config.jobs.offersIntervalMs);
         timer.unref();
