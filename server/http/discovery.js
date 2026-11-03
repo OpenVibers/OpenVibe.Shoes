@@ -90,6 +90,10 @@ function createDiscoveryRoutes(ctx) {
         res.type('text/plain').set('Cache-Control', cache.htmlHeaders({ maxAge: 600 }));
         res.send(seo.llmsTxt({
             name: SITE_NAME,
+            // Each of this site's own pages is linked at its Markdown twin (AGT-5; openvibe-shared 4.108.0 leaves
+            // files, /api/ and /.well-known/ paths and other sites' links as they are).
+            markdown: true,
+            base: base(),
             summary: DESCRIPTION,
             details: 'Public model pages, a public JSON API and an OpenAPI document. No sign-in is needed for the public reads; a price watch and a pasted listing link need a person.',
             sections: [
@@ -100,6 +104,12 @@ function createDiscoveryRoutes(ctx) {
                     { title: 'Drops', url: `${base()}/api/v1/drops` },
                     { title: 'OpenAPI', url: `${base()}/api/openapi.json` },
                 ] },
+            ],
+            // llmstxt.org's "## Optional": what an agent may skip when it needs a shorter context.
+            optional: [
+                { title: 'Sitemap', url: `${base()}/sitemap.xml`, note: 'the public pages above, each model page included' },
+                { title: 'robots.txt', url: `${base()}/robots.txt` },
+                { title: 'llms-full.txt', url: `${base()}/llms-full.txt`, note: 'the pages above in full, as plain text' },
             ],
         }));
     });

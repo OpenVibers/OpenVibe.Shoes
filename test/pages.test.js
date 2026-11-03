@@ -141,6 +141,13 @@ const { assert, equal } = require('./helpers/check');
             const llms = await t.get('/llms.txt');
             equal(llms.status, 200);
             assert(llms.text.includes('Open.Shoes'), 'the llms index');
+            // AGT-5: each page is linked at its Markdown twin, and an Optional section ends the file.
+            assert(llms.text.includes('[Open.Shoes home](https://open.shoes/index.md)'), 'the home is /index.md');
+            assert(llms.text.includes('[Every shoe](https://open.shoes/shoes.md)'), 'a page is its twin');
+            assert(llms.text.includes('(https://open.shoes/api/openapi.json)'), 'a file keeps its URL');
+            assert(/\n## Optional\n/.test(llms.text), 'no Optional section');
+            assert(/\n## Optional\n\n[\s\S]*\[Sitemap\]\(https:\/\/open\.shoes\/sitemap\.xml\)/.test(llms.text), 'sitemap in Optional');
+            equal(llms.text.lastIndexOf('\n## '), llms.text.indexOf('\n## Optional'), 'Optional is the last section');
             const full = await t.get('/llms-full.txt');
             equal(full.status, 200);
             assert(full.text.includes('Nike Air Max 90'), 'the full pages');
