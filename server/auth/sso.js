@@ -62,7 +62,7 @@ function createSso({ config, keys, fetchImpl = globalThis.fetch, now = () => Dat
     // The one module. The site's own values, its own old cookies, and the audience it always verified with.
     const sso = createSsoClient({
         site: 'shoes',
-        siteName: 'OpenVibe.Shoes',
+        siteName: 'Open.Shoes',
         baseUrl: config.baseUrl,
         clientId: config.oauth.clientId,
         clientSecret: config.oauth.clientSecret,
@@ -144,7 +144,7 @@ function createSso({ config, keys, fetchImpl = globalThis.fetch, now = () => Dat
                         req.viewer = viewerFrom(fresh.claims, fresh.token);
                     }
                 } catch (err) {
-                    log.warn('[OpenVibe.Shoes] session refresh failed:', (err && err.message) || err);
+                    log.warn('[Open.Shoes] session refresh failed:', (err && err.message) || err);
                 }
                 return next();
             });
@@ -197,7 +197,7 @@ function createSso({ config, keys, fetchImpl = globalThis.fetch, now = () => Dat
             const q = req.query.next ? `?next=${encodeURIComponent(nextOf(req.query.next))}` : '';
             res.type('html').send('<!doctype html><meta charset="utf-8"><title>Sign out</title><meta name="viewport" content="width=device-width,initial-scale=1">'
                 + `<form method="post" action="/auth/logout${q}" style="font:16px system-ui;margin:3em auto;max-width:24em;text-align:center">`
-                + '<p>Sign out of OpenVibe.Shoes?</p><button type="submit">Sign out</button> <a href="/">Cancel</a></form>');
+                + '<p>Sign out of Open.Shoes?</p><button type="submit">Sign out</button> <a href="/">Cancel</a></form>');
         });
         r.post('/logout', (req, res, next) => (sameOriginRequest(req) ? next() : res.status(403).type('text/plain').send('Sign-out must come from this site.')));
         r.all('/logout', async (req, res) => {

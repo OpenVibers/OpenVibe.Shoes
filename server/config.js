@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * OpenVibe.Shoes configuration (open.shoes). Every value comes from the environment (production:
+ * Open.Shoes configuration (open.shoes). Every value comes from the environment (production:
  * /etc/openvibe/shoes.env, see .env.example). Only environment variable NAMES appear in code and docs; secrets are
  * never logged.
  *

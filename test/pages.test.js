@@ -35,7 +35,7 @@ const { assert, equal } = require('./helpers/check');
             assert(h.includes('Questions') || h.includes('sc-faq'), 'the FAQ');
             assert(h.includes('Part of OpenVibe'), 'the network section');
             assert(!h.includes('undefined'), 'no undefined in the page');
-            assert(h.includes('OpenVibe.Shoes') && h.includes('open.shoes'), 'the name and the domain');
+            assert(h.includes('Open.Shoes') && h.includes('open.shoes'), 'the name and the domain');
         });
 
         await check('GET /shoes: search, facets and a real card', async () => {
@@ -140,7 +140,7 @@ const { assert, equal } = require('./helpers/check');
             assert(sitemap.text.includes('/shoe/nike-air-max-90'), 'the model page');
             const llms = await t.get('/llms.txt');
             equal(llms.status, 200);
-            assert(llms.text.includes('OpenVibe.Shoes'), 'the llms index');
+            assert(llms.text.includes('Open.Shoes'), 'the llms index');
             const full = await t.get('/llms-full.txt');
             equal(full.status, 200);
             assert(full.text.includes('Nike Air Max 90'), 'the full pages');

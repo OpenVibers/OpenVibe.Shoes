@@ -34,7 +34,7 @@ function createKeyStore({ config, fetchImpl = globalThis.fetch, log = console })
             const ks = await client.keys();
             const first = ks && ks[0];
             mirror = first ? { pem: first.key.export({ type: 'spki', format: 'pem' }), count: ks.length } : null;
-        } catch (err) { log.warn(`[OpenVibe.Shoes] JWKS mirror refresh failed: ${err && err.message || err}`); mirror = null; }
+        } catch (err) { log.warn(`[Open.Shoes] JWKS mirror refresh failed: ${err && err.message || err}`); mirror = null; }
     }
     async function ensure() { await refreshMirror(); }
     function get() { return mirror ? mirror.pem : null; }
@@ -50,7 +50,7 @@ function createKeyStore({ config, fetchImpl = globalThis.fetch, log = console })
         } catch (err) {
             await refreshMirror();
             const code = err && err.code;
-            log.warn(`[OpenVibe.Shoes] user token rejected (${code || 'error'}):`, (err && err.message) || err);
+            log.warn(`[Open.Shoes] user token rejected (${code || 'error'}):`, (err && err.message) || err);
             return { ok: false, reason: publicReason(err), code, expired: code === 'token.expired' };
         }
     }
@@ -63,7 +63,7 @@ function createKeyStore({ config, fetchImpl = globalThis.fetch, log = console })
         } catch (err) {
             await refreshMirror();
             const code = err && err.code;
-            log.warn(`[OpenVibe.Shoes] app token rejected (${code || 'error'}):`, (err && err.message) || err);
+            log.warn(`[Open.Shoes] app token rejected (${code || 'error'}):`, (err && err.message) || err);
             return { ok: false, reason: publicReason(err), code };
         }
     }

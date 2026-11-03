@@ -36,7 +36,7 @@ function createUpstreams({ config, fetchImpl = globalThis.fetch, log = console, 
             try {
                 const res = await fetchImpl(url, {
                     method,
-                    headers: { 'user-agent': 'OpenVibe.Shoes/0.1 (+https://open.shoes)', accept: 'application/json, text/html;q=0.9', ...headers },
+                    headers: { 'user-agent': 'Open.Shoes/0.1 (+https://open.shoes)', accept: 'application/json, text/html;q=0.9', ...headers },
                     body,
                     signal: ctrl.signal,
                 });
@@ -79,7 +79,7 @@ function createUpstreams({ config, fetchImpl = globalThis.fetch, log = console, 
             const body = await request(`${dealsBase()}/api/v1/products/${encodeURIComponent(slug)}`, { json: true });
             return body && body.product ? body.product : null;
         } catch (err) {
-            log.warn('[OpenVibe.Shoes] deals product failed:', err.message);
+            log.warn('[Open.Shoes] deals product failed:', err.message);
             return null;
         }
     }

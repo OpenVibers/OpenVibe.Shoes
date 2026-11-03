@@ -146,7 +146,7 @@ const { assert, equal } = require('./helpers/check');
             const res = await t.get('/api/health');
             equal(res.status, 200);
             equal(res.json().service, 'openvibe-shoes');
-            equal(res.json().name, 'OpenVibe.Shoes');
+            equal(res.json().name, 'Open.Shoes');
         });
 
         await check('GET /api/v1/status: the jobs, counts and what is configured', async () => {

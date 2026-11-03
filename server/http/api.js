@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * /api/v1 — OpenVibe.Shoes' JSON API.
+ * /api/v1 — Open.Shoes' JSON API.
  *
  *   GET    /shoes?q&brand&size&condition&store&sort&page&limit   public search, with facets
  *   GET    /shoes/:slug                                          offers, own history, size curve, cited facts

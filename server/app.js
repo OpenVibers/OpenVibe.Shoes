@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * OpenVibe.Shoes — Express app factory; server/index.js listens, tests build their own instance with a temp
+ * Open.Shoes — Express app factory; server/index.js listens, tests build their own instance with a temp
  * database and a mock Network.
  *
  *   /, /shoes, /shoe/:slug, /drops, /track, /watches, /developers   the pages (http/pages.js)
@@ -112,7 +112,7 @@ async function createApp(opts = {}) {
     app.use(cookieParser());
 
     // ── Machine endpoints ───────────────────────────────────
-    app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'openvibe-shoes', name: 'OpenVibe.Shoes', version: VERSION }));
+    app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'openvibe-shoes', name: 'Open.Shoes', version: VERSION }));
     release.mount(app, { registry: metrics.registry });
     const readiness = createServiceReadiness({ s, config, release: release.release, valkey });
     app.get('/api/ready', readiness.handler);
@@ -123,7 +123,7 @@ async function createApp(opts = {}) {
     // ── Sign-in (OAuth2 + PKCE client of OpenVibe.Network) ──
     app.use('/auth/', rateLimit({ windowMs: 15 * 60_000, limit: 60, standardHeaders: true, legacyHeaders: false }));
     app.use('/auth', sso.routes());
-    { const legal = require('openvibe-shared/legal'); app.get(legal.PATHS, legal.handler({ id: 'shoes', service: 'shoes', host: 'open.shoes', name: 'OpenVibe.Shoes', profile: 'ugc' })); }
+    { const legal = require('openvibe-shared/legal'); app.get(legal.PATHS, legal.handler({ id: 'shoes', service: 'shoes', host: 'open.shoes', name: 'Open.Shoes', profile: 'ugc' })); }
 
     // ── OpenVibe.Events → this service (loopback only) ──────
     // Account export/deletion; the consumer reads the raw body itself, so it is mounted before any body parser.
@@ -159,7 +159,7 @@ async function createApp(opts = {}) {
 
     // eslint-disable-next-line no-unused-vars
     app.use((err, req, res, _next) => {
-        log.error('[OpenVibe.Shoes]', err && err.message ? err.message.slice(0, 300) : err);
+        log.error('[Open.Shoes]', err && err.message ? err.message.slice(0, 300) : err);
         if (res.headersSent) return;
         res.set('Cache-Control', cache.htmlHeaders({ private: true }));
         if (err && err.type === 'entity.parse.failed') return contracts.http.sendProblem(res, 400, 'request.malformed_json', { ctx: req.ov });
