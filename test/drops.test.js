@@ -6,7 +6,7 @@
  */
 const { check, done, assert, equal } = require('./helpers/check');
 const drops = require('../server/domain/drops');
-const { LAUNCH_HTML, RSS } = require('./helpers/upstreams');
+const { LAUNCH_HTML, RSS, RELEASES } = require('./helpers/upstreams');
 
 (async () => {
     await check('parseLaunchCalendar: dated releases with model, colourway, price and sizes', () => {
@@ -16,7 +16,7 @@ const { LAUNCH_HTML, RSS } = require('./helpers/upstreams');
         equal(out[0].model, 'Air Max 90');
         equal(out[0].colourway, 'Medium Olive');
         equal(out[0].price, 130);
-        equal(out[0].releaseAt, '2026-11-04T15:00:00.000Z');
+        equal(out[0].releaseAt, RELEASES.airMax);
         equal(out[0].sizes, ['10.5', '9']);
         equal(out[0].sourceName, 'Nike SNKRS');
         equal(out[0].fetchedAt, '2026-10-31T22:00:00Z');
@@ -36,7 +36,7 @@ const { LAUNCH_HTML, RSS } = require('./helpers/upstreams');
         equal(out[0].brand, 'Puma');
         equal(out[0].model, 'Suede Classic');
         equal(out[0].sourceUrl, 'https://example.com/releases/puma-suede');
-        equal(out[0].releaseAt, '2026-11-11T10:00:00.000Z');
+        equal(out[0].releaseAt, RELEASES.puma);
     });
 
     await check('field: reads a quoted, numeric, boolean or null field', () => {
