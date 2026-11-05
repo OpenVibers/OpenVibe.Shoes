@@ -57,13 +57,18 @@ const PRODUCTS = {
     '990v6': { slug: '990v6', name: '990v6', brand: 'New Balance' },
 };
 
+// The releases these fixtures publish are relative to now (two, five and nine days out): the drops API lists from
+// an hour ago and the model page from a day ago, so a fixed date turns the suite red the day after it passes.
+const soon = (days) => new Date(Math.floor(Date.now() / 1000) * 1000 + days * 86400_000).toISOString();
+const RELEASES = { airMax: soon(2), jordan: soon(5), puma: soon(9) };
+
 const LAUNCH_HTML = (() => {
     const payload = JSON.stringify({
         products: {
             data: {
                 items: {
-                    a: { commerceStartDate: '2026-11-04T15:00:00.000Z', title: 'Air Max 90 "Medium Olive"', subtitle: "Men's Shoes", fullPrice: 130, styleColor: 'IV4504-201', skus: [{ nike_size: '10.5' }, { nike_size: '9' }] },
-                    b: { commerceStartDate: '2026-11-07T15:00:00.000Z', title: 'Air Jordan 6 Retro "White and Black"', subtitle: "Men's Shoes", fullPrice: 215, styleColor: 'CT8529-105', skus: [{ nike_size: '9.5' }] },
+                    a: { commerceStartDate: RELEASES.airMax, title: 'Air Max 90 "Medium Olive"', subtitle: "Men's Shoes", fullPrice: 130, styleColor: 'IV4504-201', skus: [{ nike_size: '10.5' }, { nike_size: '9' }] },
+                    b: { commerceStartDate: RELEASES.jordan, title: 'Air Jordan 6 Retro "White and Black"', subtitle: "Men's Shoes", fullPrice: 215, styleColor: 'CT8529-105', skus: [{ nike_size: '9.5' }] },
                 },
             },
         },
@@ -73,7 +78,7 @@ const LAUNCH_HTML = (() => {
 })();
 
 const RSS = `<?xml version="1.0"?><rss version="2.0"><channel><title>Example releases</title>
-<item><title>Puma Suede Classic Sneaker</title><link>https://example.com/releases/puma-suede</link><pubDate>Wed, 11 Nov 2026 10:00:00 GMT</pubDate></item>
+<item><title>Puma Suede Classic Sneaker</title><link>https://example.com/releases/puma-suede</link><pubDate>${new Date(RELEASES.puma).toUTCString()}</pubDate></item>
 <item><title>No date here</title><link>https://example.com/releases/none</link></item>
 </channel></rss>`;
 
@@ -159,4 +164,4 @@ async function startUpstreams() {
     };
 }
 
-module.exports = { startUpstreams, DEALS, PRODUCTS, LAUNCH_HTML, RSS, EBAY_ITEMS };
+module.exports = { startUpstreams, DEALS, PRODUCTS, RELEASES, LAUNCH_HTML, RSS, EBAY_ITEMS };
