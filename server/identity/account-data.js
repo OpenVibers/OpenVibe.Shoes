@@ -19,6 +19,30 @@ function create({ db, log = console } = {}) {
         db,
         service: 'shoes',
         tables: TABLES,
+        /**
+         * A share row names its owner and its members by canonical subject, which a table map cannot cover: a watch's
+         * own row goes, and so must its share row and everyone it named, or a deleted account would linger in somebody
+         * else's member list. Children first: members, transfers and requests point at shares.
+         */
+        extraErase: async (t, subjects) => {
+            for (const subject of subjects) {
+                const id = String(subject).replace(/^user:/, '');
+                await t.exec('DELETE FROM shoes_share_defaults WHERE subject = $1', [id]);
+                await t.exec("DELETE FROM share_members WHERE service='shoes' AND subject->>'id' = $1", [id]);
+                await t.exec("DELETE FROM share_transfers WHERE service='shoes' AND (from_subject->>'id' = $1 OR to_subject->>'id' = $1)", [id]);
+                await t.exec("DELETE FROM share_access_requests WHERE service='shoes' AND subject->>'id' = $1", [id]);
+            }
+            for (const subject of subjects) {
+                const id = String(subject).replace(/^user:/, '');
+                const owned = await t.many("SELECT kind, resource_id FROM shares WHERE service='shoes' AND owner_subject->>'id' = $1", [id]);
+                for (const row of owned) {
+                    await t.exec("DELETE FROM share_members WHERE service='shoes' AND kind=$1 AND resource_id=$2", [row.kind, row.resource_id]);
+                    await t.exec("DELETE FROM share_transfers WHERE service='shoes' AND kind=$1 AND resource_id=$2", [row.kind, row.resource_id]);
+                    await t.exec("DELETE FROM share_access_requests WHERE service='shoes' AND kind=$1 AND resource_id=$2", [row.kind, row.resource_id]);
+                    await t.exec("DELETE FROM shares WHERE service='shoes' AND kind=$1 AND resource_id=$2", [row.kind, row.resource_id]);
+                }
+            }
+        },
         note: 'Models, offers, prices and drops are the network\'s public shoe record; only your watches are here.',
         log,
     });

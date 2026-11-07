@@ -84,7 +84,7 @@ function layout(o) {
         navLinks: NAV,
         navbar,
         footer,
-        head: `${appIcon.headTags({ site: 'shoes' })}
+        head: `${o.head || ''}${appIcon.headTags({ site: 'shoes' })}
 <link rel="stylesheet" href="${esc(ovServe.url('kit.css'))}">
 <link rel="stylesheet" href="${esc(ovServe.url('room.css'))}">
 <link rel="stylesheet" href="${esc(ovServe.url('showcase.css'))}">

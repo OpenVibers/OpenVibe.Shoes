@@ -22,6 +22,10 @@ const { send } = require('../render/layout');
 const views = require('../views');
 const discovery = require('./discovery');
 
+// The one Share sheet (openvibe-shared ov-share.js): its stylesheet and script, and the gate that draws itself from
+// markup. A page with a Share button needs the shared navbar, which loads the sheet on the first press.
+const SHARE_HEAD = `<link rel="stylesheet" href="${require('openvibe-shared/serve').url('ov-share.css')}"><script src="${require('openvibe-shared/serve').url('ov-share.js')}" defer></script>`;
+
 const SORTS = new Set(['recent', 'drop', 'price', 'price_desc', 'popular', 'name']);
 const PER_PAGE = 24;
 
@@ -209,12 +213,49 @@ function createPageRoutes(ctx) {
 
     r.get('/watches', async (req, res) => {
         const list = signedIn(req) ? await catalogue.listWatches(req.viewer.subject) : [];
+        const defaultAudience = signedIn(req) && ctx.sharing ? await ctx.sharing.defaultOf(req.viewer.subject).catch(() => 'private') : 'private';
         return page(req, res, {
             title: 'Your watches',
             description: 'The price watches and pasted listing links that OpenVibe.Watch carries for you.',
-            body: views.watches({ watches: list, signedIn: Boolean(signedIn(req)), notice: noticeOf(req) }),
-            active: '/watches',
+            body: views.watches({ watches: list, signedIn: Boolean(signedIn(req)), notice: noticeOf(req), defaultAudience }),
+            active: '/watches', head: SHARE_HEAD,
             robots: 'noindex, nofollow',
+        });
+    });
+
+    // The person's default for new watches, and "apply to all" (design rule 2).
+    r.post('/watches/defaults', async (req, res) => {
+        if (!signedIn(req)) return res.redirect(302, '/auth/login?next=%2Fwatches');
+        if (!guardOrigin(req, res)) return;
+        if (ctx.sharing) {
+            const audience = ['private', 'people', 'link', 'public'].includes(req.body.audience) ? req.body.audience : 'private';
+            await ctx.sharing.setDefault(req.viewer.subject, audience, { applyAll: String(req.body.apply_all || '') === '1' })
+                .catch((err) => ctx.log.warn('[Shoes] the watch default was not saved:', err.message));
+        }
+        return res.redirect(302, '/watches');
+    });
+
+    // One watch's own page (design 2026-11-06, step 6): its owner's, or a reader it was shared with. A watch shared with
+    // specific people answers the gate to everyone else and never shows what it looks for.
+    r.get('/watches/:id', async (req, res) => {
+        const id = String(req.params.id || '');
+        const out = await catalogue.viewWatch(req.viewer || { kind: 'anonymous' }, id);
+        if (!out) {
+            const audience = ctx.sharing ? await ctx.sharing.audienceOf(id).catch(() => null) : null;
+            if (audience === 'people') {
+                return page(req, res, {
+                    title: 'A watch shared with specific people', head: SHARE_HEAD, active: '/watches', robots: 'noindex, nofollow',
+                    body: views.watchGate({ id, signedInAs: signedIn(req) ? req.viewer.username || '' : '', signInUrl: `/auth/login?next=${encodeURIComponent(req.originalUrl)}` }),
+                }, 404);
+            }
+            return page(req, res, { title: 'Not found', body: views.notFound(), active: '/watches' }, 404);
+        }
+        const audience = ctx.sharing ? await ctx.sharing.audienceOf(id).catch(() => null) : null;
+        return page(req, res, {
+            title: out.watch.kind === 'price' ? 'A price watch' : 'A listing watch',
+            description: 'A watch carried by OpenVibe.Watch for its owner, shared on Open.Shoes.',
+            body: views.watchPage({ watch: out.watch, mine: out.mine, audience }),
+            active: '/watches', head: SHARE_HEAD, robots: 'noindex, nofollow',
         });
     });
 
