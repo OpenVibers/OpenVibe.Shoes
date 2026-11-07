@@ -161,6 +161,6 @@ section says so plainly when no store has cut a price yet.
 <!-- versions:start -->
 - openvibe-contracts: v0.312.0
 - openvibe-sdk: v0.93.0
-- openvibe-shared: v4.124.0
+- openvibe-shared: v4.126.0
 - openvibe-publishing: v1.4.1
 <!-- versions:end -->
