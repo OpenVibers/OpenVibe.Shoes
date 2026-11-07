@@ -359,15 +359,42 @@ ${upcoming.length ? [...byDay.entries()].map(([day, rows]) => `<section class="s
 }
 
 // ── Watches ─────────────────────────────────────────────────
-function watches({ watches: list = [], signedIn = false, notice = null } = {}) {
+function watches({ watches: list = [], signedIn = false, notice = null, defaultAudience = 'private' } = {}) {
     if (!signedIn) {
         return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">Your watches</p><h1>Sign in to see your watches</h1><p class="sh-lede">A watch belongs to a person. Sign in with OpenVibe and your price watches and pasted links are here.</p><p><a class="sh-btn" href="/auth/login?next=${encodeURIComponent('/watches')}">Sign in with OpenVibe</a></p></header></div>`;
     }
     const body = `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">Your watches</p><h1>Watches</h1><p class="sh-lede">Every watch is carried by OpenVibe.Watch. A price watch tells you when the all-in price for your size drops below your number; a pasted link keeps the listing and lets Watch apply its own fetch rules.</p></header>
 ${notice ? `<div class="sh-notice" role="status">${esc(notice)}</div>` : ''}
-${list.length ? `<div class="sh-table-wrap"><table class="sh-table"><caption>Your watches, newest first</caption><thead><tr><th scope="col">Kind</th><th scope="col">What</th><th scope="col">Size</th><th scope="col">Below</th><th scope="col">Status</th><th scope="col">Created</th></tr></thead><tbody>${list.map((w) => `<tr><td>${esc(w.kind)}</td><td>${w.slug ? link(`/shoe/${encodeURIComponent(w.slug)}`, w.slug) : w.source_url ? `<a href="${esc(w.source_url)}" rel="noopener nofollow">${esc(w.source_url)}</a>` : '—'}${w.note ? `<br><small>${esc(w.note)}</small>` : ''}</td><td>${w.size ? esc(w.size) : 'any'}</td><td>${w.threshold != null ? money(w.threshold, w.currency) : '—'}</td><td>${esc(w.status)}${w.remote_id ? `<br><small>Watch ${esc(w.remote_id)}</small>` : ''}</td><td>${esc(dayShort(w.created_at))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="sh-empty"><h2>No watch yet</h2><p>Open a shoe and set the price for your size, or paste a listing link on the home page.</p><p><a class="sh-btn" href="/shoes">Find a shoe</a></p></div>'}
+<section class="sh-sec sh-card" aria-labelledby="sh-new-watch"><h2 id="sh-new-watch">New watches</h2>
+<form class="sh-form sh-form-inline" method="post" action="/watches/defaults"><label class="sh-field"><span>Who can open a new watch</span><select name="audience">${audienceOptions(defaultAudience)}</select></label><label class="sh-check"><input type="checkbox" name="apply_all" value="1"> Apply to all my existing watches</label><button class="sh-btn" type="submit">Save</button></form>
+<p class="sh-fine">A watch's Share button changes just that one. Your watches are never listed; a shared watch is readable only by whoever holds the link or the people you add.</p></section>
+${list.length ? `<div class="sh-table-wrap"><table class="sh-table"><caption>Your watches, newest first</caption><thead><tr><th scope="col">Kind</th><th scope="col">What</th><th scope="col">Size</th><th scope="col">Below</th><th scope="col">Status</th><th scope="col">Created</th><th scope="col"></th></tr></thead><tbody>${list.map((w) => `<tr><td>${link(`/watches/${encodeURIComponent(w.id)}`, w.kind)}</td><td>${w.slug ? link(`/shoe/${encodeURIComponent(w.slug)}`, w.slug) : w.source_url ? `<a href="${esc(w.source_url)}" rel="noopener nofollow">${esc(w.source_url)}</a>` : '—'}${w.note ? `<br><small>${esc(w.note)}</small>` : ''}</td><td>${w.size ? esc(w.size) : 'any'}</td><td>${w.threshold != null ? money(w.threshold, w.currency) : '—'}</td><td>${esc(w.status)}${w.remote_id ? `<br><small>Watch ${esc(w.remote_id)}</small>` : ''}</td><td>${esc(dayShort(w.created_at))}</td><td><button type="button" class="sh-btn sh-btn-quiet" data-ov-share-sheet data-kind="watch" data-id="${esc(w.id)}" data-title="${esc(w.kind === 'price' ? 'Price watch' : 'Listing watch')}">Share</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="sh-empty"><h2>No watch yet</h2><p>Open a shoe and set the price for your size, or paste a listing link on the home page.</p><p><a class="sh-btn" href="/shoes">Find a shoe</a></p></div>'}
 </div>`;
     return body;
+}
+
+// ── One watch (its owner's, or a shared one) ────────────────
+const AUDIENCE_WORD = { public: 'Everyone', link: 'Anyone with the link', people: 'Specific people', private: 'Only me' };
+function audienceOptions(selected = 'private') {
+    return ['private', 'people', 'link'].map((a) => `<option value="${a}"${a === selected ? ' selected' : ''}>${AUDIENCE_WORD[a]}</option>`).join('');
+}
+
+function watchPage({ watch, mine = false, audience = 'private', notice = null } = {}) {
+    const who = AUDIENCE_WORD[audience] || 'Only me';
+    const what = watch.slug ? link(`/shoe/${encodeURIComponent(watch.slug)}`, watch.slug) : watch.source_url ? `<a href="${esc(watch.source_url)}" rel="noopener nofollow">${esc(watch.source_url)}</a>` : '—';
+    return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">${watch.kind === 'price' ? 'Price watch' : 'Listing watch'}</p><h1>${watch.kind === 'price' ? 'A price watch' : 'A listing watch'}</h1><p class="sh-lede"><span class="sh-badge">${esc(who)}</span>${mine ? '' : ' · you are reading a shared watch'}</p>${notice ? `<div class="sh-notice" role="status">${esc(notice)}</div>` : ''}
+${mine ? `<p><button type="button" class="sh-btn sh-btn-quiet" data-ov-share-sheet data-kind="watch" data-id="${esc(watch.id)}" data-title="${esc(watch.kind === 'price' ? 'Price watch' : 'Listing watch')}">Share</button></p>` : ''}</header>
+<section class="sh-sec sh-card"><dl class="sh-facts"><dt>What</dt><dd>${what}</dd><dt>Size</dt><dd>${watch.size ? esc(watch.size) : 'any'}</dd><dt>Below</dt><dd>${watch.threshold != null ? money(watch.threshold, watch.currency) : '—'}</dd><dt>Status</dt><dd>${esc(watch.status)}</dd><dt>Made</dt><dd>${esc(dayShort(watch.created_at))}</dd></dl></section>
+<p class="sh-fine"><a href="/watches">Your watches</a> · Every watch is carried by OpenVibe.Watch; Shoes never emails.</p></div>`;
+}
+
+/**
+ * The page a person not on a Specific-people watch's list sees: the audience, never what the watch looks for.
+ * openvibe-shared draws the card from this markup (no inline script).
+ */
+function watchGate({ id, signedInAs = '', signInUrl = '/auth/login' } = {}) {
+    return `<div class="sh-wrap sh-page" id="sh-watch-gate"><header class="sh-page-h"><p class="sh-kicker">Your watches</p><h1>A watch shared with specific people</h1><p class="sh-lede">Sign in with the OpenVibe account it was shared with, or ask its owner for access.</p></header>
+<div data-ov-share-gate data-kind="watch" data-id="${esc(id)}" data-signed-in-as="${esc(signedInAs)}" data-sign-in-url="${esc(signInUrl)}">This is shared with specific people. Sign in with the OpenVibe account it was shared with, or ask its owner for access.</div></div>`;
 }
 
 // ── Developers ──────────────────────────────────────────────
@@ -411,4 +438,4 @@ function notFound() {
     return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">404</p><h1>No such page</h1><p class="sh-lede">That shoe, drop or page is not here. The catalogue is at <a href="/shoes">/shoes</a>, the drops at <a href="/drops">/drops</a>.</p><p><a class="sh-btn" href="/">Home</a></p></header></div>`;
 }
 
-module.exports = { home, shoesIndex, shoe, drops, watches, track, developers, signIn, notFound, modelCard, dropCard, groupDrops, money, historyChart, curveBars, offersTable };
+module.exports = { home, shoesIndex, shoe, drops, watches, watchPage, watchGate, track, developers, signIn, notFound, modelCard, dropCard, groupDrops, money, historyChart, curveBars, offersTable };

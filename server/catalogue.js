@@ -120,7 +120,7 @@ function shortHash(value) {
     return crypto.createHash('sha256').update(String(value || '')).digest('hex').slice(0, 6);
 }
 
-function createCatalogue(s, { staleHours = 48 } = {}) {
+function createCatalogue(s, { staleHours = 48, sharing = null } = {}) {
     const db = s.db;
     const nowMs = () => s.now();
 
@@ -493,7 +493,37 @@ function createCatalogue(s, { staleHours = 48 } = {}) {
                 input.sourceUrl || null, input.remoteId || null, String(input.status || 'active'), input.note || null, s.iso(),
             ],
         );
+        // A new watch starts at the person's default (design rule 1); its Share sheet changes just this one.
+        if (sharing) {
+            const audience = await sharing.defaultOf(input.subject);
+            await sharing.register(input.subject, row.id, audience);
+        }
         return wireWatch(row);
+    }
+
+    /** One watch by id, or null. */
+    async function watchById(id) {
+        return await db.maybe('SELECT w.*, m.slug AS model_slug FROM shoe_watches w LEFT JOIN shoe_models m ON m.id = w.model_id WHERE w.id = $1', [String(id || '')]);
+    }
+
+    /**
+     * A watch a viewer may read: the owner's, or one shared with them (design 2026-11-06, step 6). A missing share row
+     * falls back to the old rule — the owner alone. Returns null when it does not exist or is not this viewer's to see.
+     */
+    async function viewWatch(viewer, id) {
+        const row = await watchById(id);
+        if (!row) return null;
+        const subject = viewer && viewer.kind === 'user' ? viewer.subject : null;
+        if (subject && row.subject === subject) return { watch: wireWatch(row), mine: true };
+        if (!sharing) return null;
+        if (!await sharing.canView(viewer, row.id)) return null;
+        return { watch: wireWatch(row), mine: false };
+    }
+
+    async function mustViewWatch(viewer, id) {
+        const out = await viewWatch(viewer, id);
+        if (!out) { const err = new Error('No such watch'); err.status = 404; err.code = 'watch.not_found'; throw err; }
+        return out;
     }
 
     /** A person's watches, newest first. */
@@ -572,7 +602,7 @@ function createCatalogue(s, { staleHours = 48 } = {}) {
 
     return {
         ensureModel, upsertOffer, writeSnapshot, listShoes, countShoes, facets, modelBySlug, modelById, offersOf, history,
-        curve, listDrops, dropById, dropsForModel, upsertDrop, addFact, factsOf, createWatch, listWatches, priceFor,
+        curve, listDrops, dropById, dropsForModel, upsertDrop, addFact, factsOf, createWatch, watchById, viewWatch, mustViewWatch, listWatches, priceFor,
         startJobRun, finishJobRun, lastJobRuns, counts, wireOffer, wireModel, wireDrop, wireWatch,
     };
 }

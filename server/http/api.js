@@ -9,6 +9,7 @@
  *   GET    /drops?from&to                                        official release dates, soonest first
  *   GET    /drops/:id                                            one release
  *   GET    /me/watches                                           the signed-in person's watches
+ *   GET    /watches/:id                                        one watch: its owner's, or one shared with the reader
  *   POST   /me/watches                                           a price watch through OpenVibe.Watch
  *   POST   /me/track                                             a pasted listing link through Watch's rules
  *   GET    /status                                               the last read of each source
@@ -113,6 +114,14 @@ function createApi(ctx) {
     r.get('/me/watches', principal.requirePerson, async (req, res) => {
         const watches = await catalogue.listWatches(req.principal.subject);
         return res.json({ watches });
+    });
+
+    // One watch's data: its owner's, or a reader it was shared with (design 2026-11-06, step 6). A signed-out reader of
+    // an Anyone-with-the-link watch needs no token; the check is canView inside catalogue.viewWatch.
+    r.get('/watches/:id', async (req, res) => {
+        const out = await catalogue.viewWatch(req.principal, String(req.params.id || ''));
+        if (!out) return fail(res, req, 404, 'watch.not_found', 'No such watch.');
+        return res.json({ watch: out.watch });
     });
 
     r.post('/me/watches', principal.requirePerson, async (req, res) => {

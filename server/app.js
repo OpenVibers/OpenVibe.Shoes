@@ -29,6 +29,7 @@ const { createSso } = require('./auth/sso');
 const { createPrincipal } = require('./http/principal');
 const { createApi } = require('./http/api');
 const { createPageRoutes } = require('./http/pages');
+const { createSharing } = require('./sharing');
 const { openapi } = require('./http/openapi');
 const { createServiceReadiness } = require('./observability');
 const { assetVersion, setRelease } = require('./render/layout');
@@ -58,7 +59,9 @@ async function createApp(opts = {}) {
     const keys = createKeyStore({ config, fetchImpl, log });
     const sso = createSso({ config, keys, fetchImpl, now: s.now, log });
     const principal = createPrincipal({ config, keys });
-    const catalogue = createCatalogue(s, { staleHours: config.sources.staleHours });
+    // The one sharing system (design 2026-11-06): a watch is its owner's until the Share sheet says otherwise.
+    const sharing = opts.sharing || createSharing({ db: s.db, config, fetchImpl, log });
+    const catalogue = createCatalogue(s, { staleHours: config.sources.staleHours, sharing });
     const upstreams = createUpstreams({ config, fetchImpl, log, urlCheck: opts.urlCheck });
     const jobs = createJobs({ config, catalogue, upstreams, log });
     // The model pages in OpenVibe.Search (started by server/index.js, never under SHOES_DRILL).
@@ -71,7 +74,7 @@ async function createApp(opts = {}) {
         ? createNetworkSender({ networkInternalUrl: config.networkInternalUrl, clientId: config.oauth.clientId, clientSecret: config.oauth.clientSecret, fetch: fetchImpl })
         : async () => { throw new Error('OV_OAUTH_CLIENT_SECRET is not set: Shoes cannot answer account events'); });
 
-    const ctx = { config, s, keys, sso, principal, catalogue, upstreams, jobs, searchIndex, accountData, accountSend, log };
+    const ctx = { config, s, keys, sso, principal, catalogue, upstreams, jobs, searchIndex, sharing, accountData, accountSend, log };
 
     const app = express();
     // /.well-known/agent.json (openvibe-shared/agent-layer, SEO-2): what this site serves, for agents.
@@ -147,6 +150,28 @@ async function createApp(opts = {}) {
             res.setHeader('Cache-Control', cache.assetHeaders(rel, { hashed: !!v && v === assetVersion(rel) }));
         },
     }));
+
+    // ── /api/v1/watch/:id/share — the one Share sheet's API (openvibe-sdk/share) ──
+    // GET/PUT .../share, .../share/requests, .../share/transfer[/accept|decline|cancel], GET /api/v1/share/people
+    // and /api/v1/shared-with-me. Access is still decided by canView on every read path; the router answers only
+    // its own paths.
+    {
+        const shareApi = express.Router();
+        shareApi.use(principal.middleware);
+        shareApi.use(sharing.shares.router({
+            service: 'shoes',
+            authenticate: (req) => sharing.shareViewer(req.principal.kind === 'user' ? req.principal : req.viewer),
+            describe: sharing.describe,
+        }));
+        const SHARE_PATH = /^\/api\/v1\/(?:shared-with-me$|share\/people$|[^/]+\/[^/]+\/share(?:\/|$))/;
+        app.use((req, res, next) => (SHARE_PATH.test(req.path) ? shareApi(req, res, next) : next()));
+    }
+    // Expire members and transfers and send queued share events/notifications. Unref'd: it never holds a test open.
+    if (opts.startSharingWorker !== false) {
+        const timer = setInterval(() => { sharing.work().catch(() => { /* logged inside */ }); }, 15_000);
+        if (timer.unref) timer.unref();
+        app.locals.sharingTimer = timer;
+    }
 
     // ── API ─────────────────────────────────────────────────
     app.get('/api/openapi.json', (req, res) => res.json(openapi(config)));
