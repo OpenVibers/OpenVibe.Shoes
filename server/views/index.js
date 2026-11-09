@@ -291,7 +291,7 @@ function home({ facets = {}, dropping = [], dropsToday = [], popular = [], curve
     const categories = `<section class="sh-home-categories" aria-labelledby="sh-home-categories-h"><h2 id="sh-home-categories-h">More than shoes</h2><div>${[
         ['Laces', 'Length finder and lacing guides', '/laces'], ['Socks', 'Brand size charts by shoe size', '/socks'],
         ['Care', 'Guides by upper material', '/care'], ['Kids & baby', 'Measure, chart and remeasure', '/kids'],
-        ['Insoles', 'Product matches not known yet', '/api/v1/products?kind=insoles'],
+        // Insoles come back as a tile when they have product matches (a tile that led to an empty JSON list was a dead end).
     ].map(([title, line, href]) => `<a href="${href}"><b>${title}</b><span>${line}</span><i aria-hidden="true">→</i></a>`).join('')}</div><p><a href="/lace-length">Lace length tool</a><span aria-hidden="true"> · </span><a href="/kids/measure">Print the foot ruler</a></p></section>`;
     const heroEnd = body.indexOf('</section>');
     const homeWithCategories = heroEnd >= 0 ? `${body.slice(0, heroEnd + 10)}${categories}${body.slice(heroEnd + 10)}` : `${categories}${body}`;
