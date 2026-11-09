@@ -2,6 +2,9 @@
 
 > Every shoe, every market, the right price.
 
+**Live site:** https://open.shoes · **API docs:** https://openvibe.services · **For AI:** https://open.shoes/llms.txt
+**Run it:** `npm ci && npm run dev` (Node 22 or newer) · **Tests:** `npm test`
+
 **Status:** v1 written and tested (see [STATUS.json](STATUS.json)).
 **Domain:** `open.shoes` · **Port:** 5180 · **Service id:** `shoes` · **Env prefix:** `SHOES`
 **License:** AGPL-3.0-only (same as every OpenVibe service).
