@@ -42,6 +42,24 @@ const DEALS = [
         latest_observation: { price: '40.00', list_price: null, shipping: null, condition: null, currency: 'USD', observed_at: DAY },
     },
     {
+        id: 'dof_test_socks', slug: 'hiker-micro-crew-socks',
+        title: "Darn Tough Hiker Micro Crew Socks Men's", link: 'https://darntough.com/products/hiker-micro-crew',
+        store: { domain: 'darntough.com', name: 'Darn Tough' }, product: { slug: 'hiker-micro-crew-socks', name: 'Hiker Micro Crew Socks' },
+        latest_observation: { price: '25.00', shipping: null, condition: 'new', currency: 'USD', observed_at: DAY },
+    },
+    {
+        id: 'dof_test_laces', slug: 'flat-cotton-laces',
+        title: 'Flat Cotton Shoelaces 120 cm', link: 'https://www.lacelab.com/products/flat-cotton-laces',
+        store: { domain: 'lacelab.com', name: 'Lace Lab' }, product: { slug: 'flat-cotton-laces', name: 'Flat Cotton Shoelaces' },
+        latest_observation: { price: '8.00', shipping: '2.00', condition: 'new', currency: 'USD', observed_at: DAY },
+    },
+    {
+        id: 'dof_test_cleaner', slug: 'sneaker-cleaning-kit',
+        title: 'Sneaker Cleaning Kit', link: 'https://jasonmarkk.com/products/essential-kit',
+        store: { domain: 'jasonmarkk.com', name: 'Jason Markk' }, product: { slug: 'sneaker-cleaning-kit', name: 'Sneaker Cleaning Kit' },
+        latest_observation: { price: '18.00', shipping: null, condition: 'new', currency: 'USD', observed_at: DAY },
+    },
+    {
         id: 'dof_test_990', slug: 'new-balance-990v6',
         title: 'New Balance 990v6 Running Shoe', link: 'https://www.newbalance.com/pd/990v6',
         store: { domain: 'newbalance.com', name: 'New Balance' }, product: { slug: '990v6', name: '990v6' },
@@ -54,6 +72,9 @@ const PRODUCTS = {
     'air-jordan-1-mid': { slug: 'air-jordan-1-mid', name: 'Air Jordan 1 Mid', brand: 'Jordan' },
     'samba-og': { slug: 'samba-og', name: 'Samba OG', brand: 'Adidas' },
     'rival-fleece-joggers': { slug: 'rival-fleece-joggers', name: 'Rival Fleece Joggers', brand: 'Under Armour' },
+    'hiker-micro-crew-socks': { slug: 'hiker-micro-crew-socks', name: 'Hiker Micro Crew Socks', brand: 'Darn Tough' },
+    'flat-cotton-laces': { slug: 'flat-cotton-laces', name: 'Flat Cotton Shoelaces', brand: 'Lace Lab' },
+    'sneaker-cleaning-kit': { slug: 'sneaker-cleaning-kit', name: 'Sneaker Cleaning Kit', brand: 'Jason Markk' },
     '990v6': { slug: '990v6', name: '990v6', brand: 'New Balance' },
 };
 

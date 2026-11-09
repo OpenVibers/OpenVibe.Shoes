@@ -22,13 +22,14 @@ const express = require('express');
 const { http } = require('openvibe-contracts');
 const { asyncRouter } = require('./router');
 const { openapi } = require('./openapi');
+const productCatalog = require('../product-catalog');
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SORTS = new Set(['recent', 'drop', 'price', 'price_desc', 'popular', 'name']);
 const CONDITIONS = new Set(['new', 'used', 'deadstock']);
 
 function createApi(ctx) {
-    const { config, catalogue, principal, upstreams } = ctx;
+    const { config, catalogue, products: productStore, principal, upstreams } = ctx;
     const r = asyncRouter();
     r.use(express.json({ limit: '64kb' }));
     r.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
@@ -93,6 +94,57 @@ function createApi(ctx) {
         const out = await catalogue.priceFor(model.id, { size, condition });
         res.set('Cache-Control', 'no-store');
         return res.json({ slug, size, condition, price: out.price, currency: 'USD', checked_at: out.checked_at, offers: out.offers });
+    });
+
+    // One catalog envelope for every product kind. Until a cited and permitted feed is configured, accessories
+    // correctly return an empty result with a plain source note instead of invented products or prices.
+    r.get('/products', async (req, res) => {
+        const kind = str(req.query.kind, 20) || null;
+        if (kind && !productCatalog.KINDS.includes(kind)) return fail(res, req, 400, 'product.kind_invalid', 'kind must be shoe, laces, socks, care, insoles or kids.');
+        const q = str(req.query.q, 80).toLowerCase();
+        const size = str(req.query.size, 20);
+        const models = kind && kind !== 'shoe' ? [] : await catalogue.listShoes({ q: q || null, size: size || null, limit: 100, offset: 0 });
+        const shoeProducts = models.filter((m) => !q || `${m.brand} ${m.model}`.toLowerCase().includes(q)).map((m) => productCatalog.asProduct(m));
+        const otherProducts = kind === 'shoe' ? [] : await productStore.list({ kind, q: q || null, size: size || null, limit: 100, offset: 0 });
+        const resultProducts = [...shoeProducts, ...otherProducts].slice(0, 100);
+        res.set('Cache-Control', 'public, max-age=60');
+        return res.json({ products: resultProducts, total: resultProducts.length, kind, source_note: kind && resultProducts.length === 0 ? 'No cited, permitted product catalog is available for this kind yet; no product or offer data is being inferred.' : null });
+    });
+
+    r.get('/products/:id', async (req, res) => {
+        const slug = str(req.params.id, 160);
+        const stored = await productStore.bySlug(slug);
+        if (stored) return res.json({ product: stored });
+        const model = await catalogue.modelBySlug(slug);
+        if (!model) return fail(res, req, 404, 'product.not_found', 'No product with that id.');
+        return res.json({ product: productCatalog.asProduct(model, await catalogue.factsOf(model.id)) });
+    });
+
+    r.get('/products/:id/offers', async (req, res) => {
+        const id = str(req.params.id, 160);
+        const stored = await productStore.bySlug(id);
+        if (stored) return res.json({ product_id: stored.id, offers: await productStore.offers(id) });
+        const model = await catalogue.modelBySlug(id);
+        if (!model) return fail(res, req, 404, 'product.not_found', 'No product with that id.');
+        const offers = await catalogue.offersOf(model.id);
+        return res.json({ product_id: model.slug, offers });
+    });
+
+    r.get('/tools/lace-length', (req, res) => {
+        const result = productCatalog.laceLength({
+            eyeletPairs: Number(req.query.eyelet_pairs), method: str(req.query.method, 30) || 'criss-cross',
+            horizontalCm: req.query.horizontal_cm === undefined ? 3.5 : Number(req.query.horizontal_cm),
+            verticalCm: req.query.vertical_cm === undefined ? 2.5 : Number(req.query.vertical_cm),
+            endsCm: req.query.ends_cm === undefined ? 25 : Number(req.query.ends_cm),
+        });
+        if (!result) return fail(res, req, 400, 'lace.input_invalid', 'Use 2–16 eyelet pairs, criss-cross or bow-tie, and valid spacing/end measurements in cm.');
+        return res.json(result);
+    });
+
+    r.get('/sizes/convert', (req, res) => {
+        const result = productCatalog.sizeConvert({ system: str(req.query.system, 20), size: str(req.query.size, 20), brand: str(req.query.brand, 40) || 'darn-tough' });
+        if (!result) return fail(res, req, 400, 'size.input_invalid', 'Provide a Darn Tough shoe-size system (men, women or kids) and a numeric shoe size.');
+        return res.json(result);
     });
 
     r.get('/drops', async (req, res) => {
