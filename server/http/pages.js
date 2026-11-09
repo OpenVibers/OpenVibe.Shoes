@@ -157,7 +157,7 @@ function createPageRoutes(ctx) {
             body: views.shoe({ model, offers, history, curve, facts, drops: releases, signedIn: Boolean(signedIn(req)) }),
             active: '/shoes',
             index: true,
-            jsonLd: [discovery.productJsonLd(config, model, offers, low)],
+            jsonLd: [discovery.productJsonLd(config, model, offers, low), require('openvibe-shared/seo').jsonLd.breadcrumbs([{ name: 'Home', url: config.baseUrl + '/' }, { name: 'Shoes', url: config.baseUrl + '/shoes' }, { name: model.brand + ' ' + model.model, url: config.baseUrl + '/shoe/' + model.slug }])],
         });
     });
 
