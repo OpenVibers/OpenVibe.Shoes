@@ -226,7 +226,7 @@ function home({ facets = {}, dropping = [], dropsToday = [], popular = [], curve
         : '';
     const body = sc.room({
         room: 'shoes',
-        hero: {
+        hero: { pageHead: { icon: 'shoe' },
             title: ROOM.line,
             lede: 'One page per shoe, every store\'s offer in one all-in price, the price history from Shoes\' own daily snapshots, and a watch that tells you when your size drops below your price.',
             search: { action: '/shoes', name: 'q', placeholder: 'Search a shoe, a brand or a model', label: 'Search shoes', button: 'Search', hints: ['Air Max 90', 'Samba', 'Pegasus', 'New Balance 990'] },
@@ -305,7 +305,7 @@ function shoesIndex({ models = [], facets = {}, query = {}, page = 1, total = 0,
         return p.toString();
     };
     const body = `<div class="sh-wrap sh-page">
-<header class="sh-page-h"><p class="sh-kicker">Every shoe</p><h1>Search the catalogue</h1><p class="sh-lede">${total} model${total === 1 ? '' : 's'}${query.q ? ` for “${esc(query.q)}”` : ''}, each with every store's all-in price, the time it was checked and a stale flag.${facets.checked_at ? ` The catalogue was last read ${esc(checked(facets.checked_at, now))}.` : ''}</p></header>
+<div class="sh-page-h"><p class="sh-kicker">Every shoe</p>${kit.pageHead({ title: `Search the catalogue`, icon: 'shoe', back: { href: '/', label: 'Home' } })}<p class="sh-lede">${total} model${total === 1 ? '' : 's'}${query.q ? ` for “${esc(query.q)}”` : ''}, each with every store's all-in price, the time it was checked and a stale flag.${facets.checked_at ? ` The catalogue was last read ${esc(checked(facets.checked_at, now))}.` : ''}</p></div>
 ${searchForm({ q: query.q || '', facets, values: query })}
 ${models.length ? `<ul class="sh-grid">${models.map((m) => `<li>${modelCard(m)}</li>`).join('')}</ul>` : `<div class="sh-empty"><h2 class="ovk-titled">${sectionIcon('server')}No shoe matches yet</h2><p>Try a brand, a model or a shorter word. The catalogue is filled by the Deals job; a model appears the first time a source names it.</p><p><a class="sh-btn" href="/shoes">Clear the filters</a></p></div>`}
 ${pages > 1 ? `<nav class="sh-page-nav" aria-label="Pages">${page <= 1 ? '<span class="is-off" aria-disabled="true">← Previous</span>' : `<a href="/shoes?${esc(qs(page - 1))}" rel="prev">← Previous</a>`}<span>Page ${page} of ${pages}</span>${page >= pages ? '<span class="is-off" aria-disabled="true">Next →</span>' : `<a href="/shoes?${esc(qs(page + 1))}" rel="next">Next →</a>`}</nav>` : ''}
@@ -325,15 +325,15 @@ function shoe({ model, offers = [], history = [], curve = { points: [], median: 
     const staleCount = offers.filter((o) => o.stale).length;
     const lastChecked = offers.map((o) => o.checked_at).filter(Boolean).sort().pop() || null;
     const body = `<div class="sh-wrap sh-page">
-<nav class="crumbs" aria-label="Breadcrumbs"><a href="/">Home</a> / <a href="/shoes">Shoes</a> / ${esc(model.brand)} ${esc(model.model)}</nav>
-<header class="sh-shoe-h"><p class="sh-kicker">${esc(model.brand)}</p><h1>${esc(model.model)}</h1>
+
+<div class="sh-shoe-h"><p class="sh-kicker">${esc(model.brand)}</p>${kit.pageHead({ title: `${model.model}`, icon: 'shoe', back: { href: '/shoes', label: 'Shoes' } })}
 <p class="sh-lede">${low == null ? 'No live price yet.' : `From <b>${money(low)}</b>${high != null && high !== low ? ` to ${money(high)}` : ''} all-in at ${stores.length} store${stores.length === 1 ? '' : 's'}.`} ${lastChecked ? esc(checked(lastChecked, now)) : ''}${staleCount ? ` · <span class="sh-stale">${staleCount} stale</span>` : ''}</p>
-<p>${sizes.length ? `${sizes.length} size${sizes.length === 1 ? '' : 's'} priced: ${sizes.slice(0, 12).map(esc).join(', ')}` : 'Sizes not stated by the sources yet.'}</p></header>
+<p>${sizes.length ? `${sizes.length} size${sizes.length === 1 ? '' : 's'} priced: ${sizes.slice(0, 12).map(esc).join(', ')}` : 'Sizes not stated by the sources yet.'}</p></div>
 ${watchForm({ model, sizes, signedIn, next: `/shoe/${model.slug}` })}
 <section class="sh-sec" aria-labelledby="sh-prices-h"><h2 id="sh-prices-h" class="ovk-titled">${sectionIcon('coin')}Current prices by store</h2><p class="sh-fine">Every offer is the exact listing the store published, with its shipping when stated. A price older than ${esc(48)} hours is stale; the page never hides it.</p>${offersTable(offers)}</section>
 <section class="sh-sec" aria-labelledby="sh-history-h"><h2 id="sh-history-h" class="ovk-titled">${sectionIcon('coin')}Price history</h2><p class="sh-fine">One snapshot per offer per day, taken from Shoes' own checks. The line is the lowest all-in price of each day.</p>${historyChart(history)}</section>
 <section class="sh-sec" aria-labelledby="sh-curve-h"><h2 id="sh-curve-h" class="ovk-titled">${sectionIcon('coin')}Size-price curve</h2>${curveTable(curve)}</section>
-<section class="sh-sec" aria-labelledby="sh-colours-h"><h2 id="sh-colours-h" class="ovk-titled">${sectionIcon('shoe')}Colourways</h2>${colours.length ? `<ul class="sh-chips">${colours.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '<p class="sh-muted">Not known yet: no offer names a colourway.</p>'}</section>
+<section class="sh-sec" aria-labelledby="sh-colours-h"><h2 id="sh-colours-h" class="ovk-titled">${sectionIcon('shoe')}Colourways</h2>${colours.length ? `<ul data-ovk-scroll="drift" class="sh-chips">${colours.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '<p class="sh-muted">Not known yet: no offer names a colourway.</p>'}</section>
 ${releases.length ? `<section class="sh-sec" aria-labelledby="sh-releases-h"><h2 id="sh-releases-h" class="ovk-titled">${sectionIcon('calendar')}Release dates</h2><p class="sh-fine">From the brand's or the store's own release page, cited. Shoes never enters a raffle.</p><ul class="sh-list">${releases.map((d) => `<li><b>${esc(dayLong(d.release_at))}</b> · ${esc(d.colourway || 'colourway not stated')}${d.price != null ? ` · ${money(d.price, d.currency)}` : ''}${d.sizes.length ? ` · sizes ${d.sizes.slice(0, 12).map(esc).join(', ')}` : ''} · ${sourceLine(d.source_name, d.source_url)}${signedIn ? ` · <a href="/drops#drop-${encodeURIComponent(d.id)}">Remind me</a>` : ''}</li>`).join('')}</ul></section>` : ''}
 ${factsSection(facts)}
 <p class="sh-fine">The release facts and care notes above are the source's words, cited with the page and the date Shoes read it. The stores' own pages are the only place to buy; Shoes never takes an order.</p></div>`;
@@ -351,7 +351,7 @@ function drops({ drops: list = [], signedIn = false, notice = null, now = Date.n
     }
     const next7 = upcoming.filter((d) => Date.parse(d.release_at) <= now + 7 * 86400_000);
     const body = `<div class="sh-wrap sh-page">
-<header class="sh-page-h"><p class="sh-kicker">The drops calendar</p><h1>Dropping this week and after</h1><p class="sh-lede">Official release dates only, each read from the brand's or the store's own public release page, with the page and the time it was read. ${next7.length} release${next7.length === 1 ? '' : 's'} in the next seven days.</p></header>
+<div class="sh-page-h"><p class="sh-kicker">The drops calendar</p>${kit.pageHead({ title: `Dropping this week and after`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `Official release dates only, each read from the brand's or the store's own public release page, with the page and the time it was read. ${next7.length} release${next7.length === 1 ? '' : 's'} in the next seven days.` })}</div>
 ${notice ? `<div class="sh-notice" role="status">${esc(notice)}</div>` : ''}
 <p class="sh-fine"><b>Never automated entries.</b> Shoes shows the official page and can put a reminder on your Today agenda. It does not enter raffles or draws; stores' terms forbid bots. Reservations only where a store offers them officially.</p>
 ${upcoming.length ? [...byDay.entries()].map(([day, rows]) => `<section class="sh-drop-day" aria-labelledby="sh-day-${esc(day)}"><h2 id="sh-day-${esc(day)}" class="ovk-titled">${sectionIcon('calendar')}${esc(dayLong(rows[0].release_at))}</h2><ul class="sh-drops">${rows.map((d) => `<li class="sh-drop" id="drop-${esc(d.id)}"><div><b>${esc(d.brand)} ${esc(d.model)}</b>${d.colourway ? ` <span class="sh-colour">${esc(d.colourway)}</span>` : ''}<span class="sh-drop-meta">${esc(clock(d.release_at))} UTC · ${d.price != null ? money(d.price, d.currency) : 'price not stated'}${d.sizes.length ? ` · ${d.sizes.length} sizes` : ''}</span><span class="sh-drop-src">${sourceLine(d.source_name, d.source_url)} · read ${esc(dayShort(d.fetched_at))}</span></div>${signedIn ? `<form method="post" action="/drops/${encodeURIComponent(d.id)}/remind"><button class="sh-btn sh-btn-quiet" type="submit">${icon('bell')} Remind me</button></form>` : `<a class="sh-btn sh-btn-quiet" href="/auth/login?next=${encodeURIComponent('/drops')}">${icon('bell')} Sign in to be reminded</a>`}</li>`).join('')}</ul></section>`).join('') : `<div class="sh-empty"><h2 class="ovk-titled">${sectionIcon('calendar')}No release is listed right now</h2><p>The release pages answered but published no dated release in the window. The calendar fills on the next read.</p></div>`}
@@ -362,9 +362,9 @@ ${upcoming.length ? [...byDay.entries()].map(([day, rows]) => `<section class="s
 // ── Watches ─────────────────────────────────────────────────
 function watches({ watches: list = [], signedIn = false, notice = null, defaultAudience = 'private' } = {}) {
     if (!signedIn) {
-        return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">Your watches</p><h1>Sign in to see your watches</h1><p class="sh-lede">A watch belongs to a person. Sign in with OpenVibe and your price watches and pasted links are here.</p><p><a class="sh-btn" href="/auth/login?next=${encodeURIComponent('/watches')}">Sign in with OpenVibe</a></p></header></div>`;
+        return `<div class="sh-wrap sh-page"><div class="sh-page-h"><p class="sh-kicker">Your watches</p>${kit.pageHead({ title: `Sign in to see your watches`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `A watch belongs to a person. Sign in with OpenVibe and your price watches and pasted links are here.` })}<p><a class="sh-btn" href="/auth/login?next=${encodeURIComponent('/watches')}">Sign in with OpenVibe</a></p></div></div>`;
     }
-    const body = `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">Your watches</p><h1>Watches</h1><p class="sh-lede">Every watch is carried by OpenVibe.Watch. A price watch tells you when the all-in price for your size drops below your number; a pasted link keeps the listing and lets Watch apply its own fetch rules.</p></header>
+    const body = `<div class="sh-wrap sh-page"><div class="sh-page-h"><p class="sh-kicker">Your watches</p>${kit.pageHead({ title: `Watches`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `Every watch is carried by OpenVibe.Watch. A price watch tells you when the all-in price for your size drops below your number; a pasted link keeps the listing and lets Watch apply its own fetch rules.` })}</div>
 ${notice ? `<div class="sh-notice" role="status">${esc(notice)}</div>` : ''}
 <section class="sh-sec sh-card" aria-labelledby="sh-new-watch"><h2 id="sh-new-watch" class="ovk-titled">${sectionIcon('bell')}New watches</h2>
 <form class="sh-form sh-form-inline" method="post" action="/watches/defaults"><label class="sh-field"><span>Who can open a new watch</span><select name="audience">${audienceOptions(defaultAudience)}</select></label><label class="sh-check"><input type="checkbox" name="apply_all" value="1"> Apply to all my existing watches</label><button class="sh-btn" type="submit">Save</button></form>
@@ -383,8 +383,8 @@ function audienceOptions(selected = 'private') {
 function watchPage({ watch, mine = false, audience = 'private', notice = null } = {}) {
     const who = AUDIENCE_WORD[audience] || 'Only me';
     const what = watch.slug ? link(`/shoe/${encodeURIComponent(watch.slug)}`, watch.slug) : watch.source_url ? `<a href="${esc(watch.source_url)}" rel="noopener nofollow">${esc(watch.source_url)}</a>` : '—';
-    return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">${watch.kind === 'price' ? 'Price watch' : 'Listing watch'}</p><h1>${watch.kind === 'price' ? 'A price watch' : 'A listing watch'}</h1><p class="sh-lede"><span class="sh-badge">${esc(who)}</span>${mine ? '' : ' · you are reading a shared watch'}</p>${notice ? `<div class="sh-notice" role="status">${esc(notice)}</div>` : ''}
-${mine ? `<p><button type="button" class="sh-btn sh-btn-quiet" data-ov-share-sheet data-kind="watch" data-id="${esc(watch.id)}" data-title="${esc(watch.kind === 'price' ? 'Price watch' : 'Listing watch')}">Share</button></p>` : ''}</header>
+    return `<div class="sh-wrap sh-page"><div class="sh-page-h"><p class="sh-kicker">${watch.kind === 'price' ? 'Price watch' : 'Listing watch'}</p>${kit.pageHead({ title: `${watch.kind === 'price' ? 'A price watch' : 'A listing watch'}`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `${who}${mine ? '' : ' · you are reading a shared watch'}` })}${notice ? `<div class="sh-notice" role="status">${esc(notice)}</div>` : ''}
+${mine ? `<p><button type="button" class="sh-btn sh-btn-quiet" data-ov-share-sheet data-kind="watch" data-id="${esc(watch.id)}" data-title="${esc(watch.kind === 'price' ? 'Price watch' : 'Listing watch')}">Share</button></p>` : ''}</div>
 <section class="sh-sec sh-card"><dl class="sh-facts"><dt>What</dt><dd>${what}</dd><dt>Size</dt><dd>${watch.size ? esc(watch.size) : 'any'}</dd><dt>Below</dt><dd>${watch.threshold != null ? money(watch.threshold, watch.currency) : '—'}</dd><dt>Status</dt><dd>${esc(watch.status)}</dd><dt>Made</dt><dd>${esc(dayShort(watch.created_at))}</dd></dl></section>
 <p class="sh-fine"><a href="/watches">Your watches</a> · Every watch is carried by OpenVibe.Watch; Shoes never emails.</p></div>`;
 }
@@ -394,7 +394,7 @@ ${mine ? `<p><button type="button" class="sh-btn sh-btn-quiet" data-ov-share-she
  * openvibe-shared draws the card from this markup (no inline script).
  */
 function watchGate({ id, signedInAs = '', signInUrl = '/auth/login' } = {}) {
-    return `<div class="sh-wrap sh-page" id="sh-watch-gate"><header class="sh-page-h"><p class="sh-kicker">Your watches</p><h1>A watch shared with specific people</h1><p class="sh-lede">Sign in with the OpenVibe account it was shared with, or ask its owner for access.</p></header>
+    return `<div class="sh-wrap sh-page" id="sh-watch-gate"><div class="sh-page-h"><p class="sh-kicker">Your watches</p>${kit.pageHead({ title: `A watch shared with specific people`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `Sign in with the OpenVibe account it was shared with, or ask its owner for access.` })}</div>
 <div data-ov-share-gate data-kind="watch" data-id="${esc(id)}" data-signed-in-as="${esc(signedInAs)}" data-sign-in-url="${esc(signInUrl)}">This is shared with specific people. Sign in with the OpenVibe account it was shared with, or ask its owner for access.</div></div>`;
 }
 
@@ -413,7 +413,7 @@ function developers({ baseUrl = 'https://open.shoes' } = {}) {
         ['GET', '/api/openapi.json', 'This API as an OpenAPI 3.1 document.'],
     ];
     const body = `<div class="sh-wrap sh-page">
-<header class="sh-page-h"><p class="sh-kicker">Developers</p><h1>The Shoes API</h1><p class="sh-lede">Every model, offer, snapshot and drop is open JSON. The public reads take no key; a write is a signed-in person's own. There are no affiliate links and no Marketplace scraping.</p></header>
+<div class="sh-page-h"><p class="sh-kicker">Developers</p>${kit.pageHead({ title: `The Shoes API`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `Every model, offer, snapshot and drop is open JSON. The public reads take no key; a write is a signed-in person's own. There are no affiliate links and no Marketplace scraping.` })}</div>
 <section class="sh-sec" aria-labelledby="sh-api-h"><h2 id="sh-api-h" class="ovk-titled">${sectionIcon('code')}Routes</h2><dl class="sh-eps">${rows.map(([m, r, d]) => `<div><dt><code><b class="sh-m sh-m-${m.toLowerCase()}">${m}</b> ${esc(r)}</code></dt><dd>${esc(d)}</dd></div>`).join('')}</dl>
 <p><a class="sh-btn" href="/api/openapi.json">OpenAPI 3.1</a> <a class="sh-btn sh-btn-quiet" href="/api/v1/shoes?q=air">Try a search</a></p></section>
 <section class="sh-sec" aria-labelledby="sh-src-h"><h2 id="sh-src-h" class="ovk-titled">${sectionIcon('server')}Where the data comes from</h2><ul class="sh-list"><li><b>OpenVibe.Deals</b> is the network's offer aggregator: Shoes reads its public newest-offer pages and keeps the footwear, then reads each product's public record for its brand.</li><li><b>eBay</b> is read through the official Browse API, and only when the host sets a developer key pair.</li><li><b>Release pages</b> are the brand's or the store's own public release calendar (Nike SNKRS by default), read by a pure parser. A release with no date is not imported.</li><li><b>No scraping</b> of Facebook Marketplace; a Marketplace link is tracked by the person pasting it and Watch applying its own rules.</li></ul></section>
@@ -425,18 +425,18 @@ function developers({ baseUrl = 'https://open.shoes' } = {}) {
 }
 
 function track({ signedIn = false, notice = null, url = '' } = {}) {
-    return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">Paste a link</p><h1>Track a listing</h1><p class="sh-lede">A store, eBay or a Facebook Marketplace listing: paste the link and it becomes a Watch. OpenVibe.Watch applies its own fetch rules; Shoes never scrapes Marketplace, and never reads a page itself.</p></header>
+    return `<div class="sh-wrap sh-page"><div class="sh-page-h"><p class="sh-kicker">Paste a link</p>${kit.pageHead({ title: `Track a listing`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `A store, eBay or a Facebook Marketplace listing: paste the link and it becomes a Watch. OpenVibe.Watch applies its own fetch rules; Shoes never scrapes Marketplace, and never reads a page itself.` })}</div>
 ${notice ? `<div class="sh-notice" role="status">${esc(notice)}</div>` : ''}
 ${signedIn ? `<form class="sh-track-form" method="post" action="/track"><label for="sh-track-url">The listing link</label><input id="sh-track-url" type="url" name="url" value="${esc(url)}" placeholder="https://www.ebay.com/itm/…" required maxlength="2000"><button class="sh-btn" type="submit">${icon('link')} Track it</button></form>` : `<p><a class="sh-btn" href="/auth/login?next=${encodeURIComponent('/track')}">Sign in with OpenVibe</a> and paste the link.</p>`}
 <section class="sh-sec"><h2 class="ovk-titled">${sectionIcon('bell')}What Shoes will and will not do</h2><ul class="sh-list"><li><b>Will</b> keep the link as a Watch with OpenVibe.Watch, which fetches it under its own rules and tells you when it changes.</li><li><b>Will not</b> scrape Facebook Marketplace, or any site whose terms forbid it.</li><li><b>Will not</b> buy, bid, reserve or enter anything for you.</li></ul></section></div>`;
 }
 
 function signIn({ title = 'Sign in', next = '/' } = {}) {
-    return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">OpenVibe account</p><h1>${esc(title)}</h1><p class="sh-lede">This page belongs to a person. Sign in with OpenVibe; you come back to where you were.</p><p><a class="sh-btn" href="/auth/login?next=${encodeURIComponent(next)}">Sign in with OpenVibe</a></p></header></div>`;
+    return `<div class="sh-wrap sh-page"><div class="sh-page-h"><p class="sh-kicker">OpenVibe account</p>${kit.pageHead({ title: `${title}`, icon: 'shoe', back: { href: '/', label: 'Home' } , lede: `This page belongs to a person. Sign in with OpenVibe; you come back to where you were.` })}<p><a class="sh-btn" href="/auth/login?next=${encodeURIComponent(next)}">Sign in with OpenVibe</a></p></div></div>`;
 }
 
 function notFound() {
-    return `<div class="sh-wrap sh-page"><header class="sh-page-h"><p class="sh-kicker">404</p><h1>No such page</h1><p class="sh-lede">That shoe, drop or page is not here. The catalogue is at <a href="/shoes">/shoes</a>, the drops at <a href="/drops">/drops</a>.</p><p><a class="sh-btn" href="/">Home</a></p></header></div>`;
+    return `<div class="sh-wrap sh-page"><div class="sh-page-h"><p class="sh-kicker">404</p>${kit.pageHead({ title: `No such page`, icon: 'shoe', back: { href: '/', label: 'Home' } })}<p class="sh-lede">That shoe, drop or page is not here. The catalogue is at <a href="/shoes">/shoes</a>, the drops at <a href="/drops">/drops</a>.</p><p><a class="sh-btn" href="/">Home</a></p></div></div>`;
 }
 
 module.exports = { home, shoesIndex, shoe, drops, watches, watchPage, watchGate, track, developers, signIn, notFound, modelCard, dropCard, groupDrops, money, historyChart, curveBars, offersTable };
