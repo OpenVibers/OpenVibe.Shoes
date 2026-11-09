@@ -98,6 +98,28 @@ const { assert, equal } = require('./helpers/check');
             assert(sent.headers.authorization.startsWith('Bearer '), 'the person token');
         });
 
+        await check('POST /kids/growth-check: opt-in creates a private reminder without a birthday', async () => {
+            const before = t.upstreams.state.todayRequests.length;
+            const noConsent = await t.get('/kids/growth-check', { as: user, method: 'POST', form: { nickname: 'M', size: '7', stage: 'toddler' } });
+            equal(noConsent.status, 302);
+            equal(t.upstreams.state.todayRequests.length, before);
+
+            const res = await t.get('/kids/growth-check', { as: user, method: 'POST', form: { consent: 'yes', nickname: 'M', size: '7', stage: 'toddler' } });
+            equal(res.status, 302);
+            equal(t.upstreams.state.todayRequests.length, before + 1);
+            const sent = t.upstreams.state.todayRequests[before].body;
+            equal(sent.kind, 'event');
+            equal(sent.visibility, 'private');
+            assert(sent.title.includes('M'), 'nickname can label the reminder');
+            assert(sent.description.includes('Current shoe size: 7'), 'only current size is included');
+            assert(!/birthday|birthdate|date of birth/i.test(sent.description.replace('This reminder contains no birthday.', '')), 'no birthday value is sent');
+            const due = new Date(sent.starts_at);
+            const now = new Date();
+            assert(due > now, 'the reminder is in the future');
+            const monthDistance = (due.getUTCFullYear() - now.getUTCFullYear()) * 12 + due.getUTCMonth() - now.getUTCMonth();
+            equal(monthDistance, 3);
+        });
+
         await check('GET /track and POST /track: a pasted link becomes a watch', async () => {
             const page = await t.get('/track', { as: user });
             equal(page.status, 200);
@@ -128,6 +150,29 @@ const { assert, equal } = require('./helpers/check');
             assert(h.includes('/api/openapi.json'), 'OpenAPI');
             assert(h.includes('No scraping'), 'the source rule');
             assert(h.includes('OpenVibe.Watch'), 'the watch service');
+        });
+
+        await check('new product kinds, cited size tools and expansion guides are server rendered', async () => {
+            const products = await t.get('/api/v1/products?kind=shoe');
+            equal(products.status, 200);
+            assert(Array.isArray(products.json().products), 'products envelope');
+            const care = await t.get('/api/v1/products?kind=care');
+            equal(care.status, 200, care.text);
+            assert(care.json().products.some((p) => p.kind === 'care'), 'Deals care product is cataloged with provenance');
+            equal(care.json().source_note, null);
+            const lace = await t.get('/api/v1/tools/lace-length?eyelet_pairs=6');
+            equal(lace.status, 200);
+            equal(lace.json().cm, 105);
+            assert(lace.json().source.url.includes('fieggen.com'), 'formula is cited');
+            const sock = await t.get('/api/v1/sizes/convert?brand=darn-tough&system=women&size=8');
+            equal(sock.json().conversions[0].size, 'M');
+            const laces = await t.get('/laces');
+            assert(laces.text.includes('Bow-tie / Army') && laces.text.includes('Ian&#39;s Shoelace Site'), 'lacing guide and citation');
+            const ruler = await t.get('/kids/measure');
+            assert(ruler.text.includes('10 cm') && ruler.text.includes('Actual Size'), 'print ruler and calibration directions');
+            assert(ruler.text.includes('HowTo'), 'structured how-to data');
+            const kids = await t.get('/kids', { as: user });
+            assert(kids.text.includes('does not ask for a birthday'), 'no birth date collected');
         });
 
         await check('discovery: robots.txt, sitemap.xml, llms.txt, llms-full.txt', async () => {

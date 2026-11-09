@@ -10,6 +10,7 @@ const configLib = require('../server/config');
 const { testDb } = require('./helpers/db');
 const { createStore } = require('../server/db');
 const { createCatalogue } = require('../server/catalogue');
+const { createProductStore } = require('../server/product-store');
 const { createUpstreams } = require('../server/upstreams');
 const { createOffersJob } = require('../server/jobs/offers');
 const { createDropsJob } = require('../server/jobs/drops');
@@ -29,17 +30,20 @@ const { startUpstreams } = require('./helpers/upstreams');
     });
     const s = createStore(test.db, { now: () => Date.parse('2026-10-31T22:00:00Z') });
     const catalogue = createCatalogue(s, { staleHours: 48 });
+    const productStore = createProductStore(s);
     const upstreams = createUpstreams({ config, log: { warn() {}, log() {} } });
-    const offersJob = createOffersJob({ config, catalogue, upstreams, log: { log() {}, warn() {} } });
+    const offersJob = createOffersJob({ config, catalogue, products: productStore, upstreams, log: { log() {}, warn() {} } });
     const dropsJob = createDropsJob({ config, catalogue, upstreams, log: { log() {}, warn() {} } });
     const ebayJob = createEbayJob({ config, catalogue, upstreams, log: { log() {}, warn() {} } });
 
     try {
-        await check('offers: only footwear, brand from the product, one model each', async () => {
+        await check('offers: shoes and categorized accessories, each with its public product source', async () => {
             const out = await offersJob.runOnce({ pages: 2 });
-            equal(out.seen, 5);
-            equal(out.candidates, 4, 'the joggers are not footwear');
+            equal(out.seen, 8);
+            equal(out.candidates, 7, 'the joggers are not a shoe or shoe accessory');
             equal(out.offers, 4);
+            equal(out.products, 3);
+            equal(out.accessory_offers, 3);
             const counts = await catalogue.counts();
             equal(counts.models, 4);
             equal(counts.offers, 4);
@@ -56,11 +60,17 @@ const { startUpstreams } = require('./helpers/upstreams');
             equal(offers.length, 1);
             equal(offers[0].all_in, 89.95);
             equal(offers[0].drop_from_list, 40.05);
+            const socks = await productStore.list({ kind: 'socks' });
+            equal(socks.length, 1);
+            equal(socks[0].source.name, 'OpenVibe.Deals');
+            equal((await productStore.offers(socks[0].id))[0].all_in, 25);
         });
 
         await check('offers: a second run does not duplicate an offer or snapshots', async () => {
             const out = await offersJob.runOnce({ pages: 2 });
             equal(out.offers, 4);
+            equal(out.accessory_offers, 3);
+            equal((await productStore.list({ kind: 'laces' })).length, 1);
             const counts = await catalogue.counts();
             equal(counts.offers, 4);
             equal(counts.snapshots, 4);

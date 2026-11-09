@@ -21,6 +21,7 @@ const { sameOrigin } = require('./principal');
 const { send } = require('../render/layout');
 const views = require('../views');
 const discovery = require('./discovery');
+const productCatalog = require('../product-catalog');
 
 // The one Share sheet (openvibe-shared ov-share.js): its stylesheet and script, and the gate that draws itself from
 // markup. A page with a Share button needs the shared navbar, which loads the sheet on the first press.
@@ -92,6 +93,51 @@ function createPageRoutes(ctx) {
             active: '/shoes',
             robots: q || brand || size || condition || store ? 'noindex, follow' : 'index, follow',
         });
+    });
+
+    const expansionFaq = (name, text) => [{ '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name, acceptedAnswer: { '@type': 'Answer', text } }] }];
+    r.get('/products', (req, res) => res.redirect(302, `/api/v1/products${req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : ''}`));
+    for (const [route, kind, title, description] of [
+        ['/laces', 'laces', 'Shoelaces and lacing guides', 'Estimate lace length from eyelet spacing and lacing method, then follow simple lacing diagrams.'],
+        ['/socks', 'socks', 'Sock sizing by shoe size', 'Use the sock maker’s size chart for the correct shoe-size range, material and use.'],
+        ['/care', 'care', 'Shoe care by upper material', 'Manufacturer-sourced shoe-care notes for leather, suede, knit, canvas, mesh and nubuck.'],
+        ['/kids', 'kids', 'Baby and kids shoe fit guide', 'Measure growing feet, consult brand charts and set an optional remeasure reminder.'],
+    ]) r.get(route, (req, res) => page(req, res, {
+        title, description, body: views.expansionPage({ kind, signedIn: Boolean(signedIn(req)), notice: noticeOf(req) }), active: route,
+        index: true, jsonLd: expansionFaq(`How do I use ${title.toLowerCase()}?`, description),
+    }));
+
+    r.get('/lace-length', (req, res) => {
+        const result = req.query.eyelet_pairs ? productCatalog.laceLength({
+            eyeletPairs: Number(req.query.eyelet_pairs), method: String(req.query.method || 'criss-cross'),
+            horizontalCm: req.query.horizontal_cm === undefined ? 3.5 : Number(req.query.horizontal_cm),
+            verticalCm: req.query.vertical_cm === undefined ? 2.5 : Number(req.query.vertical_cm),
+            endsCm: req.query.ends_cm === undefined ? 25 : Number(req.query.ends_cm),
+        }) : null;
+        return page(req, res, { title: 'Lace length finder', description: 'Estimate lace length using eyelet count, spacing and method.', body: views.expansionPage({ kind: 'laces', result }), active: '/laces', index: true,
+            jsonLd: [{ '@type': 'HowTo', name: 'Estimate shoelace length', step: ['Count eyelet pairs on one shoe.', 'Measure horizontal and vertical spacing in centimeters.', 'Choose a lacing pattern and tie-end length.', 'Compare the rounded estimate with your current lace.'].map((text) => ({ '@type': 'HowToStep', text })) }, ...expansionFaq('Is this lace length exact?', 'No. It is an estimate from your measurements; compare it with a lace that fits your shoe.') ] });
+    });
+
+    r.get('/kids/measure', (req, res) => page(req, res, { title: 'Printable foot measuring ruler', description: 'Print at actual size, verify the 10 cm calibration line, and measure each foot.', body: views.expansionPage({ kind: 'measure' }), active: '/kids', index: true,
+        jsonLd: [{ '@type': 'HowTo', name: 'Measure a child’s foot at home', step: ['Print at 100% / Actual Size.', 'Verify the 10 cm calibration mark.', 'Measure the longest toe while the child is standing.', 'Use the larger foot measurement with the chosen brand’s chart.'].map((text) => ({ '@type': 'HowToStep', text })) }] }));
+
+    r.post('/kids/growth-check', async (req, res) => {
+        if (!signedIn(req)) return res.redirect(302, '/auth/login?next=%2Fkids');
+        if (!guardOrigin(req, res)) return;
+        const nickname = typeof req.body.nickname === 'string' ? req.body.nickname.trim().slice(0, 40) : '';
+        const size = typeof req.body.size === 'string' ? req.body.size.trim().slice(0, 16) : '';
+        const stage = req.body.stage === 'toddler' ? 'toddler' : req.body.stage === 'child' ? 'child' : '';
+        if (req.body.consent !== 'yes' || !size || !stage) return res.redirect(302, `/kids?notice=${encodeURIComponent('Choose a current size and stage, then opt in to add a reminder.')}`);
+        const due = new Date();
+        due.setUTCDate(1);
+        due.setUTCMonth(due.getUTCMonth() + (stage === 'toddler' ? 3 : 6));
+        const days = new Date(Date.UTC(due.getUTCFullYear(), due.getUTCMonth() + 1, 0)).getUTCDate();
+        due.setUTCDate(Math.min(new Date().getUTCDate(), days));
+        due.setUTCHours(9, 0, 0, 0);
+        const display = nickname ? `${nickname}: ` : '';
+        const out = await upstreams.createTodayEvent({ kind: 'event', title: `Remeasure ${display}kids’ feet`.slice(0, 120), description: `Current shoe size: ${size}. Recheck both feet and compare with the shoe maker’s chart. This reminder contains no birthday.`, starts_at: due.toISOString(), tz: 'UTC', visibility: 'private' }, { token: req.viewer.token });
+        const notice = out.ok ? `Private reminder added for ${due.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}.` : `Today could not add the reminder: ${out.detail}`;
+        return res.redirect(302, `/kids?notice=${encodeURIComponent(notice)}`);
     });
 
     r.get('/shoe/:slug', async (req, res) => {
