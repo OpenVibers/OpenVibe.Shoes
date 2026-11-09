@@ -8,8 +8,8 @@ const { createOffersJob } = require('./offers');
 const { createDropsJob } = require('./drops');
 const { createEbayJob } = require('./ebay');
 
-function createJobs({ config, catalogue, upstreams, log = console }) {
-    const offers = createOffersJob({ config, catalogue, upstreams, log });
+function createJobs({ config, catalogue, products, upstreams, log = console }) {
+    const offers = createOffersJob({ config, catalogue, products, upstreams, log });
     const drops = createDropsJob({ config, catalogue, upstreams, log });
     const ebay = createEbayJob({ config, catalogue, upstreams, log });
     const all = [offers, drops, ebay];

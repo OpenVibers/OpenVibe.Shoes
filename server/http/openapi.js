@@ -19,6 +19,7 @@ function openapi(config = {}) {
         slug: { name: 'slug', in: 'path', required: true, schema: { type: 'string', maxLength: 80 } },
         from: { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } },
         to: { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } },
+        kind: { name: 'kind', in: 'query', schema: { type: 'string', enum: ['shoe', 'laces', 'socks', 'care', 'insoles', 'kids'] } },
     };
     const ok = (schema) => ({ 200: { description: 'OK', content: { 'application/json': { schema } } } });
     const bad = { 400: { description: 'Bad request', content: { 'application/problem+json': { schema: problem } } }, 404: { description: 'Not found', content: { 'application/problem+json': { schema: problem } } } };
@@ -32,8 +33,23 @@ function openapi(config = {}) {
             license: { name: 'AGPL-3.0-only', url: 'https://www.gnu.org/licenses/agpl-3.0.html' },
         },
         servers: [{ url: base }, { url: 'https://open.shoes' }],
-        tags: [{ name: 'shoes' }, { name: 'drops' }, { name: 'me' }, { name: 'status' }],
+        tags: [{ name: 'shoes' }, { name: 'products' }, { name: 'tools' }, { name: 'drops' }, { name: 'me' }, { name: 'status' }],
         paths: {
+            '/api/v1/products': { get: { tags: ['products'], summary: 'Search the shared product catalog', operationId: 'listProducts', parameters: [params.kind, params.q, params.size], responses: { ...ok({ type: 'object', properties: { products: { type: 'array', items: { type: 'object' } }, total: { type: 'integer' }, source_note: { type: ['string', 'null'] } } }), ...bad } } },
+            '/api/v1/products/{id}': { get: { tags: ['products'], summary: 'Get one product with cited facts', operationId: 'getProduct', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { ...ok({ type: 'object', properties: { product: { type: 'object' } } }), ...bad } } },
+            '/api/v1/products/{id}/offers': { get: { tags: ['products'], summary: 'Get offers for one product', operationId: 'getProductOffers', parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }], responses: { ...ok({ type: 'object', properties: { product_id: { type: 'string' }, offers: { type: 'array', items: { type: 'object' } } } }), ...bad } } },
+            '/api/v1/tools/lace-length': { get: { tags: ['tools'], summary: 'Estimate lace length from eyelet layout and lacing method', operationId: 'laceLength', parameters: [
+                { name: 'eyelet_pairs', in: 'query', required: true, schema: { type: 'integer', minimum: 2, maximum: 16 } },
+                { name: 'method', in: 'query', schema: { type: 'string', enum: ['criss-cross', 'bow-tie'] } },
+                { name: 'horizontal_cm', in: 'query', schema: { type: 'number', minimum: 0.5, maximum: 12, default: 3.5 } },
+                { name: 'vertical_cm', in: 'query', schema: { type: 'number', minimum: 0.5, maximum: 12, default: 2.5 } },
+                { name: 'ends_cm', in: 'query', schema: { type: 'number', minimum: 5, maximum: 80, default: 25 } },
+            ], responses: { ...ok({ type: 'object', properties: { cm: { type: 'number' }, inches: { type: 'number' }, method: { type: 'string' }, source: { type: 'object' } } }), ...bad } } },
+            '/api/v1/sizes/convert': { get: { tags: ['products'], summary: 'Convert a supported brand shoe size to its sock size', operationId: 'convertSize', parameters: [
+                { name: 'brand', in: 'query', schema: { type: 'string', enum: ['darn-tough'], default: 'darn-tough' } },
+                { name: 'system', in: 'query', required: true, schema: { type: 'string', enum: ['men', 'women', 'kids'] } },
+                { name: 'size', in: 'query', required: true, schema: { type: 'number' } },
+            ], responses: { ...ok({ type: 'object', properties: { conversions: { type: 'array', items: { type: 'object' } }, source: { type: 'object' } } }), ...bad } } },
             '/api/v1/shoes': {
                 get: {
                     tags: ['shoes'], summary: 'Search the catalogue', operationId: 'listShoes',

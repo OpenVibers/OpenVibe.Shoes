@@ -40,6 +40,10 @@ pasted Marketplace link is handed to Watch, which applies its own fetch rules.
 | `/track` | paste a listing link; it becomes a Watch |
 | `/watches` | a signed-in person's watches (private, no-store) |
 | `/developers` | the API, sources and examples |
+| `/laces` · `/lace-length` | lacing diagrams and a source-cited length estimate from measured eyelet spacing |
+| `/socks` | brand-specific size conversion and use/material guidance |
+| `/care` | maker-cited care notes by material, with unknown compatibility stated clearly |
+| `/kids` · `/kids/measure` | manufacturer charts, a calibrated printable ruler, and an opt-in private Today remeasure reminder |
 | `/api/openapi.json` | the OpenAPI 3.1 document |
 
 All pages are server-rendered through `openvibe-shared/shell` and the room kit (`rooms.js`, `kit.card`,
@@ -55,6 +59,10 @@ Everything under `/api/v1`; errors are `application/problem+json` with a `code`.
 | `GET /api/v1/shoes?q&brand&size&condition&store&sort&page&limit` | `{ shoes, facets, page, per_page, total, sort, filters }`; sorts `recent`, `drop`, `price`, `price_desc`, `popular`, `name` |
 | `GET /api/v1/shoes/:slug` | `{ shoe, offers, history, curve, facts, drops }` |
 | `GET /api/v1/shoes/:slug/price?size=&condition=` | `{ slug, size, condition, price, currency, checked_at, offers }` — the URL a Watch polls |
+| `GET /api/v1/products?kind=&q=&size=` | shared catalog envelope with kinds `shoe`, `laces`, `socks`, `care`, `insoles`, `kids` (`shoes.product@1`) |
+| `GET /api/v1/products/:id` · `/offers` | one cited product or its offer list |
+| `GET /api/v1/tools/lace-length?eyelet_pairs=&method=&horizontal_cm=&vertical_cm=&ends_cm=` | measured lace estimate in cm/inches using a cited formula |
+| `GET /api/v1/sizes/convert?brand=darn-tough&system=men\|women\|kids&size=` | brand-chart conversion to sock size |
 | `GET /api/v1/drops?from&to` | `{ from, to, drops }`, soonest first |
 | `GET /api/v1/drops/:id` | one drop |
 | `GET /api/v1/me/watches` | session only: the person's watches |

@@ -12,7 +12,7 @@
  */
 const parse = require('../domain/parse');
 
-function createOffersJob({ config, catalogue, upstreams, log = console }) {
+function createOffersJob({ config, catalogue, products, upstreams, log = console }) {
     let timer = null;
     let running = false;
 
@@ -21,14 +21,24 @@ function createOffersJob({ config, catalogue, upstreams, log = console }) {
         return parse.isShoe(offer && offer.title, productName);
     }
 
+    function productKind(offer) {
+        const text = `${offer && offer.title || ''} ${offer && offer.product && offer.product.name || ''}`.toLowerCase();
+        if (/\b(shoelaces?|laces)\b/.test(text)) return 'laces';
+        if (/\b(socks?|compression socks?)\b/.test(text)) return 'socks';
+        if (/\b(insoles?|orthotic inserts?)\b/.test(text)) return 'insoles';
+        if (/\b(shoe care|shoe cleaner|sneaker cleaner|shoe brush|cleaning kit|shoe protector|waterproofing spray)\b/.test(text)) return 'care';
+        if (shoeCandidate(offer)) return /\b(baby|toddler|kids?|children['’]?s)\b/.test(text) ? 'kids' : 'shoe';
+        return null;
+    }
+
     async function runOnce({ pages = config.sources.offersPages, maxProductLookups = config.sources.productLookups } = {}) {
         const runId = await catalogue.startJobRun({
             job: 'offers',
             sourceName: 'OpenVibe.Deals',
             sourceUrl: `${config.sources.dealsUrl}/api/v1/offers`,
         });
-        const counts = { pages: 0, seen: 0, candidates: 0, product_lookups: 0, offers: 0, skipped: 0 };
-        const brands = new Map();
+        const counts = { pages: 0, seen: 0, candidates: 0, product_lookups: 0, offers: 0, products: 0, accessory_offers: 0, skipped: 0 };
+        const productsSeen = new Map();
         try {
             const total = Math.max(1, Math.min(200, Number(pages) || 1));
             for (let page = 1; page <= total; page++) {
@@ -37,22 +47,44 @@ function createOffersJob({ config, catalogue, upstreams, log = console }) {
                 counts.pages++;
                 counts.seen += offers.length;
                 for (const offer of offers) {
-                    if (!shoeCandidate(offer)) continue;
+                    const kind = productKind(offer);
+                    if (!kind) continue;
                     counts.candidates++;
                     const observation = offer.latest_observation || {};
                     const product = offer.product || {};
-                    let brand = null;
+                    let sourceProduct = null;
                     if (product.slug && counts.product_lookups < maxProductLookups) {
-                        if (brands.has(product.slug)) brand = brands.get(product.slug);
+                        if (productsSeen.has(product.slug)) sourceProduct = productsSeen.get(product.slug);
                         else {
                             const p = await upstreams.dealsProduct(product.slug);
                             counts.product_lookups++;
-                            brand = p && p.brand ? p.brand : null;
-                            brands.set(product.slug, brand);
+                            sourceProduct = p || null;
+                            productsSeen.set(product.slug, sourceProduct);
                         }
                     }
-                    const modelName = product.name || offer.title;
+                    const brand = sourceProduct && sourceProduct.brand ? sourceProduct.brand : null;
+                    const modelName = sourceProduct && sourceProduct.name || product.name || offer.title;
                     const checkedAt = observation.observed_at || observation.recorded_at || new Date().toISOString();
+                    if (kind !== 'shoe') {
+                        if (!products || !product.slug || !sourceProduct || !offer.link && !offer.url) { counts.skipped++; continue; }
+                        const slug = String(product.slug).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 150);
+                        const catalogProduct = await products.upsert({
+                            kind, slug, title: modelName, brand, model: modelName, url: `https://openvibe.deals/products/${encodeURIComponent(product.slug)}`,
+                            sizes: [parse.sizeOf(offer.title)].filter(Boolean), sourceName: 'OpenVibe.Deals',
+                            sourceUrl: `https://openvibe.deals/api/v1/products/${encodeURIComponent(product.slug)}`, checkedAt, facts: [],
+                        });
+                        const item = await products.upsertOffer({
+                            productSlug: catalogProduct.id, source: 'deals', sourceId: offer.id, storeDomain: offer.store && offer.store.domain,
+                            storeName: offer.store && offer.store.name, title: offer.title, url: offer.link || offer.url,
+                            price: observation.price, shipping: observation.shipping, currency: observation.currency || 'USD',
+                            size: parse.sizeOf(offer.title), condition: observation.condition, checkedAt, raw: { id: offer.id, product: product.slug },
+                        });
+                        if (catalogProduct) counts.products++;
+                        if (item) counts.accessory_offers++;
+                        else counts.skipped++;
+                        if (config.sources.requestGapMs) await upstreams.sleep(config.sources.requestGapMs / 2);
+                        continue;
+                    }
                     const row = await catalogue.upsertOffer({
                         source: 'deals',
                         sourceId: offer.id,
@@ -82,7 +114,7 @@ function createOffersJob({ config, catalogue, upstreams, log = console }) {
                 if (page < total && config.sources.requestGapMs) await upstreams.sleep(config.sources.requestGapMs);
             }
             await catalogue.finishJobRun(runId, { ok: true, counts });
-            log.log(`[Open.Shoes] offers: ${counts.offers} offers from ${counts.candidates} shoe candidates over ${counts.pages} pages`);
+            log.log(`[Open.Shoes] offers: ${counts.offers} shoe offers and ${counts.accessory_offers} product offers from ${counts.candidates} candidates over ${counts.pages} pages`);
             return counts;
         } catch (err) {
             await catalogue.finishJobRun(runId, { ok: false, counts, error: err.message });
@@ -107,7 +139,7 @@ function createOffersJob({ config, catalogue, upstreams, log = console }) {
         timer = null;
     }
 
-    return { name: 'offers', runOnce, start, stop, shoeCandidate };
+    return { name: 'offers', runOnce, start, stop, shoeCandidate, productKind };
 }
 
 module.exports = { createOffersJob };

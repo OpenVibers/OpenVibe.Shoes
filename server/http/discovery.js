@@ -57,6 +57,12 @@ function publicPages(models = []) {
         { path: '/', changefreq: 'hourly', priority: 1.0, title: 'Open.Shoes home', text: 'Every shoe, every market, the right price: all-in prices, the price history and the size-price curve.' },
         { path: '/shoes', changefreq: 'hourly', priority: 0.9, title: 'Every shoe', text: 'Search every model by brand, size and condition; every offer is all-in with its store and the time it was checked.' },
         { path: '/drops', changefreq: 'daily', priority: 0.8, title: 'The drops calendar', text: 'Official shoe release dates, each cited to the brand\'s or store\'s own release page, with a reminder on OpenVibe.Today.' },
+        { path: '/laces', changefreq: 'monthly', priority: 0.7, title: 'Laces and lacing guides', text: 'Measured shoelace length estimates, sourced formulas and illustrated lacing guides.' },
+        { path: '/lace-length', changefreq: 'monthly', priority: 0.7, title: 'Lace length finder', text: 'Estimate length from eyelet count, measured spacing and lacing method.' },
+        { path: '/socks', changefreq: 'monthly', priority: 0.7, title: 'Sock sizing by shoe size', text: 'Brand-specific sock size conversion and use/material guidance.' },
+        { path: '/care', changefreq: 'monthly', priority: 0.7, title: 'Shoe care by material', text: 'Manufacturer-cited care guidance for shoe upper materials.' },
+        { path: '/kids', changefreq: 'monthly', priority: 0.7, title: 'Baby and kids shoe fit guide', text: 'Foot measurement, manufacturer size charts and an optional remeasure reminder.' },
+        { path: '/kids/measure', changefreq: 'monthly', priority: 0.6, title: 'Printable foot ruler', text: 'A calibration-checked printable 10 cm ruler and how-to guide.' },
         { path: '/developers', changefreq: 'weekly', priority: 0.6, title: 'The Shoes API', text: 'The open JSON API for shoes, offers, history, curves, drops and watches, and the OpenAPI document.' },
     ];
     for (const m of models) {
@@ -102,6 +108,9 @@ function createDiscoveryRoutes(ctx) {
                     { title: 'Search shoes', url: `${base()}/api/v1/shoes?q=air+max` },
                     { title: 'One shoe', url: `${base()}/api/v1/shoes/nike-air-max-90` },
                     { title: 'Drops', url: `${base()}/api/v1/drops` },
+                    { title: 'Products', url: `${base()}/api/v1/products?kind=shoe` },
+                    { title: 'Lace length tool', url: `${base()}/api/v1/tools/lace-length?eyelet_pairs=6` },
+                    { title: 'Size conversion', url: `${base()}/api/v1/sizes/convert?brand=darn-tough&system=women&size=8` },
                     { title: 'OpenAPI', url: `${base()}/api/openapi.json` },
                 ] },
             ],

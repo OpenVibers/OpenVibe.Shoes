@@ -34,6 +34,7 @@ const { openapi } = require('./http/openapi');
 const { createServiceReadiness } = require('./observability');
 const { assetVersion, setRelease } = require('./render/layout');
 const { createCatalogue } = require('./catalogue');
+const { createProductStore } = require('./product-store');
 const { createUpstreams } = require('./upstreams');
 const { createJobs } = require('./jobs');
 const { createSearchIndex } = require('./search-index');
@@ -62,8 +63,9 @@ async function createApp(opts = {}) {
     // The one sharing system (design 2026-11-06): a watch is its owner's until the Share sheet says otherwise.
     const sharing = opts.sharing || createSharing({ db: s.db, config, fetchImpl, log });
     const catalogue = createCatalogue(s, { staleHours: config.sources.staleHours, sharing });
+    const products = createProductStore(s);
     const upstreams = createUpstreams({ config, fetchImpl, log, urlCheck: opts.urlCheck });
-    const jobs = createJobs({ config, catalogue, upstreams, log });
+    const jobs = createJobs({ config, catalogue, products, upstreams, log });
     // The model pages in OpenVibe.Search (started by server/index.js, never under SHOES_DRILL).
     const searchIndex = createSearchIndex({ config, s, log });
 
@@ -74,7 +76,7 @@ async function createApp(opts = {}) {
         ? createNetworkSender({ networkInternalUrl: config.networkInternalUrl, clientId: config.oauth.clientId, clientSecret: config.oauth.clientSecret, fetch: fetchImpl })
         : async () => { throw new Error('OV_OAUTH_CLIENT_SECRET is not set: Shoes cannot answer account events'); });
 
-    const ctx = { config, s, keys, sso, principal, catalogue, upstreams, jobs, searchIndex, sharing, accountData, accountSend, log };
+    const ctx = { config, s, keys, sso, principal, catalogue, products, upstreams, jobs, searchIndex, sharing, accountData, accountSend, log };
 
     const app = express();
     // /.well-known/agent.json (openvibe-shared/agent-layer, SEO-2): what this site serves, for agents.
