@@ -6,7 +6,7 @@ on:
 jobs:
   # install, node --check and npm test: the shared test job (Track Q).
   test:
-    uses: OpenVibers/OpenVibe.Shared/.github/workflows/test.yml@470ff286d7914c1e43616865c098e70eac41ca08
+    uses: OpenVibers/OpenVibe.Shared/.github/workflows/test.yml@45713271ca5454229394960456cf6c8ef1ba780d
     with:
       pin-script-ref: feat/pin-only-ci   # trial only: the pin-only script rides the workflow branch until it merges
       syntax-dirs: server test scripts
