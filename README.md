@@ -170,7 +170,7 @@ section says so plainly when no store has cut a price yet.
 - No affiliate links, no sponsored order, no Marketplace scraping.
 
 <!-- versions:start -->
-- openvibe-contracts: v0.406.0
+- openvibe-contracts: v0.408.0
 - openvibe-sdk: v0.150.0
 - openvibe-shared: v4.211.0
 - openvibe-publishing: v1.7.0
