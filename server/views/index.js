@@ -113,7 +113,7 @@ function historyChart(points) {
         + `<line class="sh-chart-axis" x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}"></line>`
         + `<line class="sh-chart-axis" x1="${pad}" y1="${pad}" x2="${pad}" y2="${h - pad}"></line>`
         + `<path class="sh-chart-line" d="${line}" fill="none"></path>${dots}</svg>`
-        + `<figcaption><span>Lowest all-in price by day</span><b>${money(points[points.length - 1].price)}</b><small>${esc(points[0].day)} → ${esc(points[points.length - 1].day)} · ${points.length} day${points.length === 1 ? '' : 's'} of Shoes' own snapshots</small></figcaption></figure>`;
+        + `<figcaption><span>Lowest all-in price by day</span><b>${money(points[points.length - 1].price)}</b><small>${esc(points[0].day)} to ${esc(points[points.length - 1].day)} · ${points.length} day${points.length === 1 ? '' : 's'} of Shoes' own snapshots</small></figcaption></figure>`;
 }
 
 /** The size-price curve as bars (real points only). */
@@ -293,7 +293,7 @@ function home({ facets = {}, dropping = [], dropsToday = [], popular = [], curve
         ['Laces', 'Length finder and lacing guides', '/laces'], ['Socks', 'Brand size charts by shoe size', '/socks'],
         ['Care', 'Guides by upper material', '/care'], ['Kids & baby', 'Measure, chart and remeasure', '/kids'],
         // Insoles come back as a tile when they have product matches (a tile that led to an empty JSON list was a dead end).
-    ].map(([title, line, href]) => `<a href="${href}"><b>${title}</b><span>${line}</span><i aria-hidden="true">→</i></a>`).join('')}</div><p><a href="/lace-length">Lace length tool</a><span aria-hidden="true"> · </span><a href="/kids/measure">Print the foot ruler</a></p></section>`;
+    ].map(([title, line, href]) => `<a href="${href}"><b>${title}</b><span>${line}</span><i data-ov-icon="arrow-right" aria-hidden="true"></i></a>`).join('')}</div><p><a href="/lace-length">Lace length tool</a><span aria-hidden="true"> · </span><a href="/kids/measure">Print the foot ruler</a></p></section>`;
     const heroEnd = body.indexOf('</section>');
     const homeWithCategories = heroEnd >= 0 ? `${body.slice(0, heroEnd + 10)}${categories}${body.slice(heroEnd + 10)}` : `${categories}${body}`;
     // The home sits in the page's width like every other page (it ran edge to edge, 10-31).
@@ -336,7 +336,7 @@ function shoesIndex({ models = [], facets = {}, query = {}, page = 1, total = 0,
 <div class="sh-page-h"><p class="sh-kicker">Every shoe</p>${kit.pageHead({ title: `Search the catalogue`, icon: 'shoe', back: { href: '/', label: 'Home' } })}<p class="sh-lede">${total} model${total === 1 ? '' : 's'}${query.q ? ` for “${esc(query.q)}”` : ''}, each with every store's all-in price, the time it was checked and a stale flag.${facets.checked_at ? ` The catalogue was last read ${esc(checked(facets.checked_at, now))}.` : ''}</p></div>
 ${searchForm({ q: query.q || '', facets, values: query })}
 ${models.length ? `<ul class="sh-grid">${models.map((m) => `<li>${modelCard(m)}</li>`).join('')}</ul>` : `<div class="sh-empty"><h2 class="ovk-titled">${sectionIcon('server')}No shoe matches yet</h2><p>Try a brand, a model or a shorter word. The catalogue is filled by the Deals job; a model appears the first time a source names it.</p><p><a class="sh-btn" href="/shoes">Clear the filters</a></p></div>`}
-${pages > 1 ? `<nav class="sh-page-nav" aria-label="Pages">${page <= 1 ? '<span class="is-off" aria-disabled="true">← Previous</span>' : `<a href="/shoes?${esc(qs(page - 1))}" rel="prev">← Previous</a>`}<span>Page ${page} of ${pages}</span>${page >= pages ? '<span class="is-off" aria-disabled="true">Next →</span>' : `<a href="/shoes?${esc(qs(page + 1))}" rel="next">Next →</a>`}</nav>` : ''}
+${pages > 1 ? `<nav class="sh-page-nav" aria-label="Pages">${page <= 1 ? '<span class="is-off" aria-disabled="true"><i data-ov-icon="arrow-left" aria-hidden="true"></i> Previous</span>' : `<a href="/shoes?${esc(qs(page - 1))}" rel="prev"><i data-ov-icon="arrow-left" aria-hidden="true"></i> Previous</a>`}<span>Page ${page} of ${pages}</span>${page >= pages ? '<span class="is-off" aria-disabled="true">Next <i data-ov-icon="arrow-right" aria-hidden="true"></i></span>' : `<a href="/shoes?${esc(qs(page + 1))}" rel="next">Next <i data-ov-icon="arrow-right" aria-hidden="true"></i></a>`}</nav>` : ''}
 <p class="sh-fine">A model with no price says so; a price that has not been checked in ${esc(facets.stale_hours || 48)} hours is marked stale. No affiliate links, ever.</p></div>`;
     return body;
 }
@@ -436,9 +436,9 @@ function developers({ baseUrl = 'https://open.shoes' } = {}) {
         ['GET', '/api/v1/shoes/:slug/price?size=&condition=', 'The lowest all-in price for a model (and size), for a Watch to poll.'],
         ['GET', '/api/v1/drops?from&to', 'The official release dates, soonest first, each with its source page and read time.'],
         ['GET', '/api/v1/status', 'The last read of each source: when, how many rows, whether it answered.'],
-        ['POST', '/api/v1/me/watches', 'Session only: { slug, size?, condition?, threshold, currency? } → a price watch in OpenVibe.Watch.'],
+        ['POST', '/api/v1/me/watches', 'Session only: { slug, size?, condition?, threshold, currency? } creates a price watch in OpenVibe.Watch.'],
         ['GET', '/api/v1/me/watches', 'Session only: the person\'s watches.'],
-        ['POST', '/api/v1/me/track', 'Session only: { url } → a Watch for a pasted listing, through Watch\'s own fetch rules.'],
+        ['POST', '/api/v1/me/track', 'Session only: { url } creates a Watch for a pasted listing, through Watch\'s own fetch rules.'],
         ['GET', '/api/openapi.json', 'This API as an OpenAPI 3.1 document.'],
     ];
     const body = `<div class="sh-wrap sh-page">
