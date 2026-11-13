@@ -21,11 +21,11 @@ const MENU_NAME = 'Shoes';
 const TAGLINE = 'Every shoe, every market, the right price.';
 const PUBLIC_DIR = path.join(__dirname, '..', '..', 'public');
 const NAV = [
-    { label: 'Home', href: '/', icon: 'fa-house' },
-    { label: 'Shoes', href: '/shoes', icon: 'fa-magnifying-glass' },
-    { label: 'Drops', href: '/drops', icon: 'fa-clock' },
-    { label: 'Watches', href: '/watches', icon: 'fa-bell' },
-    { label: 'Developers', href: '/developers', icon: 'fa-code', more: true },
+    { label: 'Home', href: '/', icon: 'home' },
+    { label: 'Shoes', href: '/shoes', icon: 'search' },
+    { label: 'Drops', href: '/drops', icon: 'clock' },
+    { label: 'Watches', href: '/watches', icon: 'bell' },
+    { label: 'Developers', href: '/developers', icon: 'code', more: true },
 ];
 const API_BASE = 'https://open.shoes';
 
@@ -58,9 +58,9 @@ function layout(o) {
         apiBase: NETWORK_URL,
         links: NAV.map((l) => ({ ...l, active: l.href === active || (l.href !== '/' && pathNow.startsWith(`${l.href}/`)) })),
         appBar: [
-            { label: 'Shoes', href: '/shoes', icon: 'fa-magnifying-glass' },
-            { label: 'Drops', href: '/drops', icon: 'fa-clock' },
-            { label: 'Watches', href: '/watches', icon: 'fa-bell' },
+            { label: 'Shoes', href: '/shoes', icon: 'search' },
+            { label: 'Drops', href: '/drops', icon: 'clock' },
+            { label: 'Watches', href: '/watches', icon: 'bell' },
         ],
         silentLogin: `${String(config.baseUrl).replace(/\/+$/, '')}/auth/login?silent=1&next={url}`,
         sessionUrl: '/auth/me',
