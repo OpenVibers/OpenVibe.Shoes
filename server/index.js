@@ -33,7 +33,7 @@ async function start() {
     const { config } = ctx;
 
     const server = app.listen(config.port, config.host, () => {
-        console.log(`[Open.Shoes] ${config.nodeEnv} on http://${config.host}:${config.port} → ${config.baseUrl} (db ${ctx.s.db.store})`);
+        console.log(`[Open.Shoes] ${config.nodeEnv} on http://${config.host}:${config.port} (public ${config.baseUrl}) (db ${ctx.s.db.store})`);
         // Warm the Network signing key immediately: a service nobody has signed in to yet must not read degraded
         // only because the first JWKS fetch had not happened.
         ctx.keys.ensure().catch(() => {});

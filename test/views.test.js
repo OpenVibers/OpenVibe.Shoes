@@ -32,7 +32,7 @@ const views = require('../server/views');
     await check('historyChart: one real point is a dot, no curve invented', () => {
         const one = views.historyChart([{ day: '2026-10-31', price: 89.95 }]);
         assert(one.includes('<svg'), 'the chart');
-        assert(one.includes('2026-10-31 → 2026-10-31'), 'one day');
+        assert(one.includes('2026-10-31 to 2026-10-31'), 'one day');
         assert(!one.includes('No snapshot yet'), 'a point is a point');
         assert(views.historyChart([]).includes('No snapshot yet'), 'nothing yet says so');
     });
@@ -46,11 +46,11 @@ const views = require('../server/views');
 
     await check('the list\'s page links: the ends are plain text, not links to no page', () => {
         const first = views.shoesIndex({ page: 1, total: 60 });
-        assert(first.includes('<span class="is-off" aria-disabled="true">← Previous</span>'), 'page 1 has no previous link');
-        assert(/<a href="\/shoes\?[^"]*page=2[^"]*" rel="next">Next →<\/a>/.test(first), 'page 1 links to page 2');
+        assert(first.includes('<span class="is-off" aria-disabled="true"><i data-ov-icon="arrow-left" aria-hidden="true"></i> Previous</span>'), 'page 1 has no previous link');
+        assert(/<a href="\/shoes\?[^"]*page=2[^"]*" rel="next">Next <i data-ov-icon="arrow-right" aria-hidden="true"><\/i><\/a>/.test(first), 'page 1 links to page 2');
         const last = views.shoesIndex({ page: 3, total: 60 });
-        assert(last.includes('<span class="is-off" aria-disabled="true">Next →</span>'), 'the last page has no next link');
-        assert(last.includes('rel="prev">← Previous</a>'), 'the last page links back');
+        assert(last.includes('<span class="is-off" aria-disabled="true">Next <i data-ov-icon="arrow-right" aria-hidden="true"></i></span>'), 'the last page has no next link');
+        assert(last.includes('rel="prev"><i data-ov-icon="arrow-left" aria-hidden="true"></i> Previous</a>'), 'the last page links back');
     });
 
     done();
