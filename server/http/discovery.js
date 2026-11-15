@@ -34,7 +34,9 @@ function productJsonLd(config, model, offers, low) {
     const url = `${site}/shoe/${model.slug}`;
     const prices = offers.map((o) => o.all_in).filter((p) => p != null);
     const out = seo.jsonLd.product({
-        name: `${model.brand} ${model.model}`,
+        // The page's heading names the model (the brand stands beside it): the name says what a reader sees, and the
+        // brand is its own field (the browser check, 11-15: "Teva Hydratrek Sandals CT" was not on the page).
+        name: model.model,
         url,
         description: `${model.brand} ${model.model}: every store's all-in price, the price history and the size-price curve.`,
         brand: model.brand,

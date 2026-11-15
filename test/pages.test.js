@@ -47,6 +47,18 @@ const { assert, equal } = require('./helpers/check');
             assert(res.text.includes('1 model'), 'the count');
         });
 
+        await check('every structured-data name is on its page (the browser check, 11-15)', async () => {
+            const visibleNames = (html) => {
+                const text = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<title[\s\S]*?<\/title>/g, '').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
+                const nodes = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1])).flat();
+                return nodes.filter((n) => n && ['Product', 'HowTo'].includes(n['@type'])).map((n) => [n['@type'], n.name, text.includes(n.name)]);
+            };
+            const shoe = visibleNames((await t.get('/shoe/nike-air-max-90')).text);
+            assert(shoe.length && shoe.every((x) => x[2]), JSON.stringify(shoe));
+            const lace = visibleNames((await t.get('/lace-length')).text);
+            assert(lace.length && lace.every((x) => x[2]), JSON.stringify(lace));
+        });
+
         await check('GET /shoe/:slug: offers, history, curve, facts and the watch form', async () => {
             const res = await t.get('/shoe/nike-air-max-90');
             equal(res.status, 200);
