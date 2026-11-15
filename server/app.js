@@ -128,7 +128,9 @@ async function createApp(opts = {}) {
     app.use(sso.middleware());
 
     // ── Sign-in (OAuth2 + PKCE client of OpenVibe.Network) ──
-    app.use('/auth/', rateLimit({ windowMs: 15 * 60_000, limit: 60, standardHeaders: true, legacyHeaders: false }));
+    // /auth/me is the navbar's who-is-signed-in read on every page, so it is not counted with sign-ins (nginx's API zone
+    // limits it): 60 page views in 15 minutes made a visitor look signed out, and the browser check saw 429s (11-15).
+    app.use('/auth/', rateLimit({ windowMs: 15 * 60_000, limit: 60, skip: (req) => req.path === '/me', standardHeaders: true, legacyHeaders: false }));
     app.use('/auth', sso.routes());
     { const legal = require('openvibe-shared/legal'); app.get(legal.PATHS, legal.handler({ id: 'shoes', service: 'shoes', host: 'open.shoes', name: 'Open.Shoes', profile: 'ugc' })); }
 
