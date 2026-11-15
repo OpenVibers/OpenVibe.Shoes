@@ -115,7 +115,7 @@ function createPageRoutes(ctx) {
             endsCm: req.query.ends_cm === undefined ? 25 : Number(req.query.ends_cm),
         }) : null;
         return page(req, res, { title: 'Lace length finder', description: 'Estimate lace length using eyelet count, spacing and method.', body: views.expansionPage({ kind: 'laces', result }), active: '/laces', index: true,
-            jsonLd: [{ '@type': 'HowTo', name: 'Estimate shoelace length', step: ['Count eyelet pairs on one shoe.', 'Measure horizontal and vertical spacing in centimeters.', 'Choose a lacing pattern and tie-end length.', 'Compare the rounded estimate with your current lace.'].map((text) => ({ '@type': 'HowToStep', text })) }, ...expansionFaq('Is this lace length exact?', 'No. It is an estimate from your measurements; compare it with a lace that fits your shoe.') ] });
+            jsonLd: [{ '@type': 'HowTo', name: 'Find a lace length that fits your lacing', step: ['Count eyelet pairs on one shoe.', 'Measure horizontal and vertical spacing in centimeters.', 'Choose a lacing pattern and tie-end length.', 'Compare the rounded estimate with your current lace.'].map((text) => ({ '@type': 'HowToStep', text })) }, ...expansionFaq('Is this lace length exact?', 'No. It is an estimate from your measurements; compare it with a lace that fits your shoe.') ] });
     });
 
     r.get('/kids/measure', (req, res) => page(req, res, { title: 'Printable foot measuring ruler', description: 'Print at actual size, verify the 10 cm calibration line, and measure each foot.', body: views.expansionPage({ kind: 'measure' }), active: '/kids', index: true,
