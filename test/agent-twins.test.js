@@ -8,7 +8,8 @@ const { boot } = require('./helpers/boot');
 const { TWIN_PATH_RE } = require('../server/agent-twins');
 
 // Public pages from the sitemap that render without data.
-const PAGES = ['/', '/shoes', '/drops', '/developers'];
+// The guides since 11-28: llms.txt lists their twins.
+const PAGES = ['/', '/shoes', '/drops', '/developers', '/care', '/kids', '/kids/measure', '/lace-length', '/laces', '/socks'];
 
 (async () => {
     const t = await boot();
